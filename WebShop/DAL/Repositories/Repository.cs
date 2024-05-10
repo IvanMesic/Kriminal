@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Linq;
+using DAL.Data;
 using Microsoft.EntityFrameworkCore;
 
 public class Repository<T> : IRepository<T> where T : class
 {
-    private readonly DbContext _context;
+    private readonly DataContext _context;
     private readonly DbSet<T> _dbSet;
 
-    public Repository(DbContext context)
+    public Repository(DataContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _dbSet = context.Set<T>();
     }
 
-    public IQueryable<T> GetAll()
+    public IList<T> GetAll()
     {
-        return _dbSet.AsQueryable();
+        return _dbSet.ToList();
     }
 
     public T GetById(int id)
@@ -26,16 +27,18 @@ public class Repository<T> : IRepository<T> where T : class
     public void Add(T entity)
     {
         _dbSet.Add(entity);
+        _context.SaveChanges();
     }
 
     public void Update(T entity)
     {
-        _dbSet.Attach(entity);
-        _context.Entry(entity).State = EntityState.Modified;
+        _dbSet.Update(entity);
+        _context.SaveChanges();
     }
 
     public void Delete(T entity)
     {
         _dbSet.Remove(entity);
+        _context.SaveChanges();
     }
 }

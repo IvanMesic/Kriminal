@@ -1,8 +1,9 @@
-﻿using DAL.Interfaces;
+﻿using DAL.Data;
+using DAL.Interfaces;
 using DAL.Model;
 using Microsoft.EntityFrameworkCore;
 
 public class ItemRepository : Repository<Item>, IItemRepository
 {
-    public ItemRepository(DbContext context) : base(context) { }
+    public ItemRepository(DataContext context) : base(context) { }
 }
