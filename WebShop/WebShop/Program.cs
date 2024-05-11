@@ -2,7 +2,8 @@ using DAL.Data;
 using DAL.Interfaces;
 using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.DependencyInjection;
+using WebShop.Mapping;
 
 namespace WebShop
 {
@@ -16,6 +17,11 @@ namespace WebShop
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            
+            
+            builder.Services.AddAutoMapper(typeof(AutomapperProfile));
+
 
             builder.Services.AddScoped<ITagRepository, TagRepository>();
             builder.Services.AddScoped<IBidRepository, BidRepository>();
