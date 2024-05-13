@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface IItemRepository : IRepository<Item> { }
+    public interface IItemRepository : IRepository<Item> 
+    {
+        public IList<Item> GetFiltered();
+    
+    }
 
 }
