@@ -2,8 +2,9 @@
 {
     public class ArtistViewModel
     {
-        public int ArtistId { get; set; }
         public string Name { get; set; }
         public string Bio { get; set; }
+
+        public virtual ICollection<CreateItemViewModel> Items { get; set; }
     }
 }

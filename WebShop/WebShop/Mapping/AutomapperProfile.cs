@@ -8,7 +8,7 @@ namespace WebShop.Mapping
     {
         public AutomapperProfile()
         {
-            CreateMap<Item, ItemViewModel>().ReverseMap();
+            CreateMap<Item, CreateItemViewModel>().ReverseMap();
             CreateMap<Artist, ArtistViewModel>().ReverseMap();
             CreateMap<Category, CategoryViewModel>().ReverseMap();
         }

@@ -2,126 +2,100 @@
 using DAL.Interfaces;
 using DAL.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using WebShop.Models.ViewModel;
+using WebShop.Services;
 
 namespace WebShop.Controllers
 {
     public class ItemController : Controller
     {
-        private readonly IItemRepository itemRepository;
+        private readonly IItemService _itemService;
+        private readonly IItemRepository _itemRepository;
+        private readonly IItemTagRepository _itemTagRepository;
         private readonly IMapper _mapper;
 
-        public ItemController(IItemRepository itemRepository, IMapper mapper)
+
+        public ItemController(IItemTagRepository itemTagRepository, IItemRepository itemRepository, IItemService itemService, IMapper mapper)
         {
+            _itemRepository = itemRepository;
+            _itemService = itemService;
+            _itemTagRepository = itemTagRepository;
             _mapper = mapper;
-            this.itemRepository = itemRepository;
         }
 
-        // Display a list of all items
         public IActionResult Index()
         {
-            var items = itemRepository.GetAll();
-            var viewModels = _mapper.Map<List<ItemViewModel>>(items);
-            return View(viewModels);
+            var items = _itemRepository.GetAll();
+            return View(items);
         }
-
-        // Display details for a specific item
-        public ActionResult Details(int id)
-        {
-            Item item = itemRepository.GetById(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
-            var viewModel = _mapper.Map<ItemViewModel>(item);
-            return View(viewModel);
-        }
-
-        // Display the item creation form
         public ActionResult Create()
         {
             return View();
         }
 
-        // Handle item creation
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(ItemViewModel viewModel)
+        public ActionResult Create(CreateItemViewModel itemViewModel)
         {
-            try
+            var item = _mapper.Map<Item>(itemViewModel.item);
+            _itemRepository.Add(item);
+
+
+            foreach (var tagId in itemViewModel.tagIds)
             {
-                if (ModelState.IsValid)
-                {
-                    Item item = _mapper.Map<Item>(viewModel);
-                    itemRepository.Add(item);
-                    return RedirectToAction(nameof(Index));
-                }
-                return View(viewModel);
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
+                _itemTagRepository.Add(itemTag);
             }
-            catch
-            {
-                return View(viewModel);
-            }
+
+            return RedirectToAction(nameof(Index));
         }
+
+
 
         public ActionResult Edit(int id)
         {
-            Item item = itemRepository.GetById(id);
-            if (item == null)
+            var viewModel = _itemService.GetItemById(id);
+            if (viewModel == null)
             {
                 return NotFound();
             }
-            var viewModel = _mapper.Map<ItemViewModel>(item);
+
+
             return View(viewModel);
         }
 
-        // Process item updates
         [HttpPost]
-        public ActionResult Save(ItemViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(CreateItemViewModel viewModel)
         {
-
-
             if (ModelState.IsValid)
             {
-                Item item = _mapper.Map<Item>(viewModel);
-                try
-                {
-                    itemRepository.Update(item);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch
-                {
-                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
-                }
+                _itemService.UpdateItem(viewModel);
+                return RedirectToAction(nameof(Index));
             }
             return View(viewModel);
         }
 
-        // Display the delete confirmation page
+
         public ActionResult Delete(int id)
         {
-            Item item = itemRepository.GetById(id);
-            if (item == null)
+            var viewModel = _itemService.GetItemById(id);
+            if (viewModel == null)
             {
                 return NotFound();
             }
-            var viewModel = _mapper.Map<ItemViewModel>(item);
             return View(viewModel);
         }
 
-        // Handle item deletion
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Item item = itemRepository.GetById(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
-            itemRepository.Delete(item);
+            _itemService.DeleteItem(id);
             return RedirectToAction(nameof(Index));
         }
     }
-}
+ }

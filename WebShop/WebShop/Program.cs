@@ -4,6 +4,7 @@ using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WebShop.Mapping;
+using WebShop.Services;
 
 namespace WebShop
 {
@@ -36,6 +37,9 @@ namespace WebShop
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
             builder.Services.AddScoped<ITransactionItemRepository, TransactionItemRepository>();
 
+
+
+            builder.Services.AddScoped<IItemService, ItemService>();
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 

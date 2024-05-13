@@ -5,7 +5,8 @@ namespace WebShop.Models.ViewModel
     public class CategoryViewModel
     {
         [Key]
-        public int CategoryId { get; set; }
         public string Name { get; set; }
+
+        public virtual ICollection<CreateItemViewModel> Items { get; set; }
     }
 }

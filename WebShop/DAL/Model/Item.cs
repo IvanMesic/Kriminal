@@ -25,6 +25,7 @@ namespace DAL.Model
         public virtual Category Category { get; set; }
         public virtual ICollection<TransactionItem> TransactionItems { get; set; }
         public virtual ICollection<ItemTag> ItemTags { get; set; }
+
     }
 
 }
