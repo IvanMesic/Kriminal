@@ -16,14 +16,14 @@ namespace WebShop.Controllers
 
         public ActionResult Index()
         {
-            IList<Tag> tags = tagRepository.GetAll();
+            var tags = tagRepository.GetAll();
             return View(tags);
         }
 
         // GET: TagController/Details/5
         public ActionResult Details(int id)
         {
-            Tag tag = tagRepository.GetById(id);
+            var tag = tagRepository.GetById(id);
             return View(tag);
         }
 
@@ -52,7 +52,7 @@ namespace WebShop.Controllers
         // GET: TagController/Delete/5
         public ActionResult Delete(int id)
         {
-            Tag tag = tagRepository.GetById(id);
+            var tag = tagRepository.GetById(id);
             tagRepository.Delete(tag);
             return RedirectToAction(nameof(Index));
         }

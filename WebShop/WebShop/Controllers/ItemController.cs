@@ -5,23 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using WebShop.Models.ViewModel;
-using WebShop.Services;
+using WebShop.Model;
 
 namespace WebShop.Controllers
 {
     public class ItemController : Controller
     {
-        private readonly IItemService _itemService;
         private readonly IItemRepository _itemRepository;
         private readonly IItemTagRepository _itemTagRepository;
         private readonly IMapper _mapper;
 
-
-        public ItemController(IItemTagRepository itemTagRepository, IItemRepository itemRepository, IItemService itemService, IMapper mapper)
+        public ItemController(IItemTagRepository itemTagRepository, IItemRepository itemRepository, IMapper mapper)
         {
             _itemRepository = itemRepository;
-            _itemService = itemService;
             _itemTagRepository = itemTagRepository;
             _mapper = mapper;
         }
@@ -31,11 +27,19 @@ namespace WebShop.Controllers
             var items = _itemRepository.GetAll();
             return View(items);
         }
+
+        public IActionResult Details(int id)
+        {
+            var item = _itemRepository.GetById(id);
+            return View(item);
+        }
+
+        //Create
         public ActionResult Create()
         {
             return View();
         }
-
+        //Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(CreateItemViewModel itemViewModel)
@@ -53,49 +57,53 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
+        //Create
         public ActionResult Edit(int id)
         {
-            var viewModel = _itemService.GetItemById(id);
-            if (viewModel == null)
+            var item = _itemRepository.GetById(id);
+            var itemVM = new CreateItemViewModel() { item = item, tagIds = new List<int>() };
+
+            foreach (ItemTag itemTag in item.ItemTags)
             {
-                return NotFound();
+                itemVM.tagIds.Add(itemTag.TagId);
             }
 
-
-            return View(viewModel);
+            return View(itemVM);
         }
-
+        //Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(CreateItemViewModel viewModel)
+        public ActionResult Edit(CreateItemViewModel itemViewModel)
         {
-            if (ModelState.IsValid)
+            var item = _mapper.Map<Item>(itemViewModel.item);
+            _itemRepository.Update(item);
+
+            int id = item.ItemId;
+            item = _itemRepository.GetById(id);
+
+            //Delete old tags
+            foreach(ItemTag itemTag in item.ItemTags)
             {
-                _itemService.UpdateItem(viewModel);
-                return RedirectToAction(nameof(Index));
+                _itemTagRepository.Delete(itemTag);
             }
-            return View(viewModel);
-        }
 
-
-        public ActionResult Delete(int id)
-        {
-            var viewModel = _itemService.GetItemById(id);
-            if (viewModel == null)
+            //Create new tags
+            foreach (var tagId in itemViewModel.tagIds)
             {
-                return NotFound();
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
+                _itemTagRepository.Add(itemTag);
             }
-            return View(viewModel);
-        }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            _itemService.DeleteItem(id);
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: ItemController/Delete/5
+        public ActionResult Delete(int id)
+        {
+            var item = _itemRepository.GetById(id);
+            _itemRepository.Delete(item);
+            return RedirectToAction(nameof(Index));
+        }
+
     }
  }

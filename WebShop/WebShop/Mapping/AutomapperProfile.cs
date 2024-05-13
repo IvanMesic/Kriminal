@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DAL.Model;
-using WebShop.Models.ViewModel;
+using WebShop.Model;
 
 namespace WebShop.Mapping
 {
@@ -9,10 +9,7 @@ namespace WebShop.Mapping
         public AutomapperProfile()
         {
             CreateMap<Item, CreateItemViewModel>().ReverseMap();
-            CreateMap<Artist, ArtistViewModel>().ReverseMap();
-            CreateMap<Category, CategoryViewModel>().ReverseMap();
+            CreateMap<Artist, CreateArtistViewModel>().ReverseMap();
         }
-
-
     }
 }
