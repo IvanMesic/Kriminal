@@ -4,7 +4,6 @@ using DAL.Model;
 using DAL.Model.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using WebShop.Model;
 using WebShop.Services;
@@ -29,9 +28,21 @@ namespace WebShop.Controllers
 
         public IActionResult Index(ItemFilterViewModel filterModel)
         {
-            var items = _itemFilterService.GetFilteredItems(filterModel);
-            var filterOptions = _itemFilterService.GetFilterOptions();
+            // Ensure PageNumber and PageSize have valid values
+            filterModel.PageNumber = filterModel.PageNumber < 1 ? 1 : filterModel.PageNumber;
+            filterModel.PageSize = filterModel.PageSize < 1 ? 10 : filterModel.PageSize;
 
+            filterModel.TotalPages = (int)Math.Ceiling((double)_itemFilterService.GetFilteredItems(filterModel).Count / filterModel.PageSize);
+
+
+            var items = _itemFilterService.GetFilteredItems(filterModel)
+                            .Skip((filterModel.PageNumber - 1) * filterModel.PageSize)
+                            .Take(filterModel.PageSize)
+                            .ToList();
+
+
+
+            var filterOptions = _itemFilterService.GetFilterOptions();
             filterModel.Categories = filterOptions.Categories;
             filterModel.Artists = filterOptions.Artists;
             filterModel.Tags = filterOptions.Tags;
@@ -39,8 +50,14 @@ namespace WebShop.Controllers
             var itemViewModel = new ItemListViewModel
             {
                 Items = items,
-                Filter = filterModel
+                Filter = filterModel,
+                TotalPages = items.Count / filterModel.PageSize + 1
             };
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ItemList", itemViewModel);
+            }
 
             return View(itemViewModel);
         }

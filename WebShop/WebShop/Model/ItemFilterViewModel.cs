@@ -18,5 +18,9 @@ namespace WebShop.Model
         public List<string> SelectedCategories { get; set; } = new List<string>();
         public List<string> SelectedArtists { get; set; } = new List<string>();
         public List<string> SelectedTags { get; set; } = new List<string>();
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalPages { get; set; } 
+
     }
 }

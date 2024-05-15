@@ -19,5 +19,6 @@ namespace DAL.Interfaces
      int? pageNum = null,
      int? pageSize = null);
     }
+    
 
 }

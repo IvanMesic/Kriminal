@@ -34,7 +34,9 @@ namespace WebShop.Services
                 categories: categories.Any() ? categories : null,
                 priceMin: filterModel.PriceMin,
                 priceMax: filterModel.PriceMax,
-                searchQuery: filterModel.SearchQuery
+                searchQuery: filterModel.SearchQuery,
+                pageNum: filterModel.PageNumber,
+                pageSize: filterModel.PageSize
             );
         }
 

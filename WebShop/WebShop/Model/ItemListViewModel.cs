@@ -7,5 +7,7 @@ namespace WebShop.Model
     {
         public IList<Item> Items { get; set; }
         public ItemFilterViewModel Filter { get; set; }
+
+        public int TotalPages { get; set; } 
     }
 }

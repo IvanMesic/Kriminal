@@ -24,7 +24,6 @@ namespace WebShop
             });
 
 
-
             builder.Services.AddAutoMapper(typeof(AutomapperProfile));
 
             builder.Services.AddScoped<ITagRepository, TagRepository>();

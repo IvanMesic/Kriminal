@@ -24,7 +24,7 @@ namespace WebShop.Services
 
         public Transaction CreateTransaction(int userId)
         {
-            var user = _userRepository.GetById(userId);
+            var user = _userRepository.GetUser(userId);
             if (user == null)
                 throw new Exception("User not found.");
 

@@ -1,72 +1,70 @@
 ﻿@model WebShop.Model.ItemListViewModel
 
-@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+<form id="filter-form" asp-action="Index" asp-controller="Item" method="get">
+    <div class="form-group">
+        <label for="searchQuery">Search</label>
+        <input type="text" name="SearchQuery" class="form-control" value="@Model.Filter.SearchQuery" />
+    </div>
+    <div class="form-group">
+        <label for="priceMin">Minimum Price</label>
+        <input type="number" name="PriceMin" class="form-control" value="@Model.Filter.PriceMin" />
+    </div>
+    <div class="form-group">
+        <label for="priceMax">Maximum Price</label>
+        <input type="number" name="PriceMax" class="form-control" value="@Model.Filter.PriceMax" />
+    </div>
+    <div class="form-group">
+        <label for="categories">Categories</label>
+        <select asp-for="Filter.SelectedCategories" asp-items="Model.Filter.Categories" class="form-control" multiple="multiple"></select>
+    </div>
+    <div class="form-group">
+        <label for="artists">Artists</label>
+        <select asp-for="Filter.SelectedArtists" asp-items="Model.Filter.Artists" class="form-control" multiple="multiple"></select>
+    </div>
+    <div class="form-group">
+        <label for="tags">Tags</label>
+        <select asp-for="Filter.SelectedTags" asp-items="Model.Filter.Tags" class="form-control" multiple="multiple"></select>
+    </div>
+    <div class="form-group">
+        <label for="pageSize">Page Size</label>
+        <input type="number" name="PageSize" class="form-control" value="@Model.Filter.PageSize" />
+    </div>
+    <input type="hidden" name="PageNumber" id="PageNumber" value="@Model.Filter.PageNumber" />
 
-<h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
 
-<div>
-    @await Html.PartialAsync("_FilterForm", Model.Filter)
+<div id="items-container">
+    @await Html.PartialAsync("_ItemList", Model)
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Items.First().Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Items.First().Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Items.First().CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Items.First().ImagePath)
-            </th>
-            <th>
-                Category
-            </th>
-            <th>
-                Artist
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Items)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ImagePath)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Artist.Name)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.ItemId }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.ItemId })
-                </td>
-            </tr>
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#filter-form').submit(function (event) {
+                event.preventDefault();
+                loadItems();
+            });
+        });
+
+        function loadItems() {
+            $.ajax({
+                url: '@Url.Action("Index", "Item")',
+                type: 'GET',
+                data: $('#filter-form').serialize(),
+                success: function (result) {
+                    $('#items-container').html(result);
+                }
+            });
         }
-    </tbody>
-</table>
+
+
+        function loadPage(pageNumber) {
+            $('#PageNumber').val(pageNumber);
+            loadItems();
+        }
+
+    </script>
+}
