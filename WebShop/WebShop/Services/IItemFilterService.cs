@@ -6,6 +6,7 @@ namespace WebShop.Services
 {
     public interface IItemFilterService
     {
+        int getTotalPages();
         IList<Item> GetFilteredItems(ItemFilterViewModel filterModel);
         ItemFilterViewModel GetFilterOptions();
     }

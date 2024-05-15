@@ -32,7 +32,7 @@
     <input type="hidden" name="PageNumber" id="PageNumber" value="@Model.Filter.PageNumber" />
 
 
-    <button type="submit" class="btn btn-primary">Filter</button>
+    <button type="submit" id="filterButton" class="btn btn-primary">Filter</button>
 </form>
 
 <div id="items-container">
@@ -49,6 +49,10 @@
             });
         });
 
+        $('#filterButton').on('click', function () {
+            $('#PageNumber').val(1);  // Reset hidden PageNumber input to 1
+        });
+
         function loadItems() {
             $.ajax({
                 url: '@Url.Action("Index", "Item")',
@@ -56,10 +60,13 @@
                 data: $('#filter-form').serialize(),
                 success: function (result) {
                     $('#items-container').html(result);
+
+                    // Update page number in hidden field
+                    var pageNumber = $('.pagination').find('.active').text();
+                    $('#PageNumber').val(pageNumber);
                 }
             });
         }
-
 
         function loadPage(pageNumber) {
             $('#PageNumber').val(pageNumber);

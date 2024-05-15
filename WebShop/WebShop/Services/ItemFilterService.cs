@@ -13,6 +13,8 @@ namespace WebShop.Services
         private readonly IArtistRepository _artistRepository;
         private readonly ITagRepository _tagRepository;
 
+        private int totalPages;
+
         public ItemFilterService(IItemRepository itemRepository, ICategoryRepository categoryRepository,
                                  IArtistRepository artistRepository, ITagRepository tagRepository)
         {
@@ -27,6 +29,17 @@ namespace WebShop.Services
             var tags = filterModel.SelectedTags.Select(tagId => new Tag { TagId = int.Parse(tagId) }).ToList();
             var artists = filterModel.SelectedArtists.Select(artistId => new Artist { ArtistId = int.Parse(artistId) }).ToList();
             var categories = filterModel.SelectedCategories.Select(categoryId => new Category { CategoryId = int.Parse(categoryId) }).ToList();
+
+            int itemCount = _itemRepository.GetFiltered(
+                tags: tags.Any() ? tags : null,
+                artists: artists.Any() ? artists : null,
+                categories: categories.Any() ? categories : null,
+                priceMin: filterModel.PriceMin,
+                priceMax: filterModel.PriceMax,
+                searchQuery: filterModel.SearchQuery
+            ).Count();
+
+            totalPages = (int)Math.Ceiling((double)itemCount / filterModel.PageSize);
 
             return _itemRepository.GetFiltered(
                 tags: tags.Any() ? tags : null,
@@ -64,6 +77,11 @@ namespace WebShop.Services
             };
 
             return filterModel;
+        }
+
+        public int getTotalPages()
+        {
+            return totalPages;
         }
     }
 }

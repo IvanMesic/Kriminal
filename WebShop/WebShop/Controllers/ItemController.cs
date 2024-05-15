@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 using DAL.Interfaces;
 using DAL.Model;
-using DAL.Model.DTO;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 using WebShop.Model;
 using WebShop.Services;
 
@@ -32,14 +29,13 @@ namespace WebShop.Controllers
             filterModel.PageNumber = filterModel.PageNumber < 1 ? 1 : filterModel.PageNumber;
             filterModel.PageSize = filterModel.PageSize < 1 ? 10 : filterModel.PageSize;
 
-            filterModel.TotalPages = (int)Math.Ceiling((double)_itemFilterService.GetFilteredItems(filterModel).Count / filterModel.PageSize);
 
 
-            var items = _itemFilterService.GetFilteredItems(filterModel)
-                            .Skip((filterModel.PageNumber - 1) * filterModel.PageSize)
-                            .Take(filterModel.PageSize)
-                            .ToList();
+            var filteredItems = _itemFilterService.GetFilteredItems(filterModel);
 
+            int totalPages = _itemFilterService.getTotalPages();
+
+            IList<Item> items2 = _itemRepository.GetFiltered(tags: filterModel.SelectedTags.Select(tagId => new Tag { TagId = int.Parse(tagId) }).ToList(), artists: filterModel.SelectedArtists.Select(artistId => new Artist { ArtistId = int.Parse(artistId) }).ToList(), categories: filterModel.SelectedCategories.Select(categoryId => new Category { CategoryId = int.Parse(categoryId) }).ToList(), priceMax: filterModel.PriceMax, searchQuery: filterModel.SearchQuery, pageNum: null, pageSize: null);
 
 
             var filterOptions = _itemFilterService.GetFilterOptions();
@@ -49,9 +45,10 @@ namespace WebShop.Controllers
 
             var itemViewModel = new ItemListViewModel
             {
-                Items = items,
+                Items = filteredItems,
                 Filter = filterModel,
-                TotalPages = items.Count / filterModel.PageSize + 1
+                TotalPages = totalPages,
+                CurrentPage = filterModel.PageNumber // Add current page information
             };
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
