@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DAL.Model.Item>
+﻿@model WebShop.Model.ItemListViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -10,58 +10,63 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<div>
+    @await Html.PartialAsync("_FilterForm", Model.Filter)
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                @Html.DisplayNameFor(model => model.Items.First().Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                @Html.DisplayNameFor(model => model.Items.First().Price)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
+                @Html.DisplayNameFor(model => model.Items.First().CreatedAt)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ImagePath)
-            </th>            
+                @Html.DisplayNameFor(model => model.Items.First().ImagePath)
+            </th>
             <th>
                 Category
             </th>
             <th>
                 Artist
             </th>
-
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>
                     @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.ImagePath)
-            </td>        
-            <td>
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Category.Name)
-            </td>
-            <td>
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Artist.Name)
-            </td>
-            <td>
+                </td>
+                <td>
                     @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }) |
                     @Html.ActionLink("Details", "Details", new { id = item.ItemId }) |
                     @Html.ActionLink("Delete", "Delete", new { id = item.ItemId })
-            </td>
-        </tr>
-}
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

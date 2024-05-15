@@ -43,8 +43,11 @@ namespace DAL.Data
         //WRITE SPECIFIC CONSTRAINTS ON TABLES HERE
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
 
-
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasConversion<string>(); 
         }
     }
 }

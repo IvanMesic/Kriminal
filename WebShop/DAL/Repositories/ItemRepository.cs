@@ -34,7 +34,67 @@ public class ItemRepository : Repository<Item>, IItemRepository
     }
 
 
+    public IList<Item> GetFiltered(
+     IList<Tag>? tags = null,
+     IList<Artist>? artists = null,
+     IList<Category>? categories = null,
+     decimal? priceMin = 0,
+     decimal? priceMax = null,
+     string? searchQuery = null,
+     int? pageNum = null,
+     int? pageSize = null
 
+ )
+    {
+        var query = _context.Item.AsQueryable();
+
+        if (tags != null && tags.Any())
+        {
+            foreach (var tag in tags)
+            {
+                query = query.Where(i => i.ItemTags.Any(it => it.TagId == tag.TagId));
+            }
+        }
+
+        if (artists != null && artists.Any())
+        {
+            var artistIds = artists.Select(a => a.ArtistId);
+            query = query.Where(i => artistIds.Contains(i.ArtistId));
+        }
+
+
+        if (categories != null && categories.Any())
+        {
+            var categoryIds = categories.Select(c => c.CategoryId);
+            query = query.Where(i => categoryIds.Contains(i.CategoryId));
+        }
+
+
+        if (priceMin != null)
+        {
+            query = query.Where(i => i.Price >= priceMin);
+        }
+
+        if (priceMax != null)
+        {
+            query = query.Where(i => i.Price <= priceMax);
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            query = query.Where(i => i.Title.Contains(searchQuery) || i.Description.Contains(searchQuery));
+        }
+
+
+        if (pageNum != null && pageSize != null)
+        {
+            query = query.Skip((pageNum.Value - 1) * pageSize.Value).Take(pageSize.Value);
+        }
+
+
+        return query.ToList();
+    }
 
 
 

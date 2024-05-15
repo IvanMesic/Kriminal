@@ -1,5 +1,6 @@
 ﻿using DAL.Interfaces;
 using DAL.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebShop.Controllers
@@ -13,13 +14,13 @@ namespace WebShop.Controllers
             this.tagRepository = tagRepository;
         }
 
-
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
             var tags = tagRepository.GetAll();
             return View(tags);
         }
-
+        
         // GET: TagController/Details/5
         public ActionResult Details(int id)
         {

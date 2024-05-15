@@ -1,0 +1,54 @@
+﻿@model DAL.Model.Cart
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Shopping Cart</h1>
+
+@if (Model.Items.Count == 0)
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Total.ToString("C")</td>
+                    <td>
+                        <form asp-action="Remove" method="post" style="display:inline;">
+                            <input type="hidden" name="itemId" value="@item.ItemId" />
+                            <input type="submit" value="Remove" class="btn btn-danger" />
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Total: @Model.Total.ToString("C")</h3>
+
+    <form asp-action="Clear" method="post">
+        <input type="submit" value="Clear Cart" class="btn btn-warning" />
+    </form>
+
+    <form asp-action="CommitTransaction" method="post" style="margin-top: 10px;">
+        <input type="submit" value="Purchase Items" class="btn btn-success" />
+    </form>
+}

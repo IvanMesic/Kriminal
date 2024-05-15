@@ -7,15 +7,27 @@ namespace DAL.Model
         [Key]
         public int UserId { get; set; }
         [Required]
+        [MinLength(4)]
+        [MaxLength(16)]
         public string Username { get; set; }
+
+        [EmailAddress(ErrorMessage = "Invalid email addres")]
         public string Email { get; set; }
 
-        //Or just password doesnt really matter
+        public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
-        public String PasswordHash {  get; set; }
+
+        [Required]
+        public UserRole Role { get; set; }
 
         // Navigation properties
         public virtual ICollection<Transaction> Transactions { get; set; }
         public virtual ICollection<UserBid> UserBids { get; set; }
+    }
+
+    public enum UserRole
+    {
+        User,
+        Admin
     }
 }
