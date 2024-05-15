@@ -80,6 +80,13 @@ public class ItemRepository : Repository<Item>, IItemRepository
             query = query.Where(i => i.Price <= priceMax);
         }
 
+        if (tags != null && tags.Any())
+        {
+            foreach (var tag in tags)
+            {
+                query = query.Where(i => i.ItemTags.Any(it => it.TagId == tag.TagId));
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(searchQuery))
         {
@@ -97,5 +104,38 @@ public class ItemRepository : Repository<Item>, IItemRepository
     }
 
 
+        // Apply category filtering
+        if (categories != null && categories.Any())
+        {
+            var categoryIds = categories.Select(c => c.CategoryId);
+            query = query.Where(i => categoryIds.Contains(i.CategoryId));
+        }
+
+        // Apply price range filtering
+        if (priceMin != null)
+        {
+            query = query.Where(i => i.Price >= priceMin);
+        }
+
+        if (priceMax != null)
+        {
+            query = query.Where(i => i.Price <= priceMax);
+        }
+
+        // Apply search query filtering
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            query = query.Where(i => i.Title.Contains(searchQuery) || i.Description.Contains(searchQuery));
+        }
+
+        // Apply paging if provided
+        if (pageNum != null && pageSize != null)
+        {
+            query = query.Skip((pageNum.Value - 1) * pageSize.Value).Take(pageSize.Value);
+        }
+
+        // Execute the query and return the result
+        return query.ToList();
+    }
 
 }
