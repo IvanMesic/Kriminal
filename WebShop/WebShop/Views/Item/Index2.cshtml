@@ -1,0 +1,84 @@
+﻿@model WebShop.Model.ItemListViewModel
+@{
+    ViewBag.Title = "Index2";
+}
+
+<h2>Items</h2>
+
+<div id="filter-form-container">
+    <form id="filter-form" asp-action="Index" asp-controller="Item" method="get">
+        <div class="form-group">
+            <label for="searchQuery">Search</label>
+            <input type="text" name="SearchQuery" class="form-control" value="@Model.Filter.SearchQuery" />
+        </div>
+        <div class="form-group">
+            <label for="priceMin">Minimum Price</label>
+            <input type="number" name="PriceMin" class="form-control" value="@Model.Filter.PriceMin" />
+        </div>
+        <div class="form-group">
+            <label for="priceMax">Maximum Price</label>
+            <input type="number" name="PriceMax" class="form-control" value="@Model.Filter.PriceMax" />
+        </div>
+        <div class="form-group">
+            <label for="categories">Categories</label>
+            <select asp-for="Filter.SelectedCategories" asp-items="Model.Filter.Categories" class="form-control" multiple="multiple"></select>
+        </div>
+        <div class="form-group">
+            <label for="artists">Artists</label>
+            <select asp-for="Filter.SelectedArtists" asp-items="Model.Filter.Artists" class="form-control" multiple="multiple"></select>
+        </div>
+        <div class="form-group">
+            <label for="tags">Tags</label>
+            <select asp-for="Filter.SelectedTags" asp-items="Model.Filter.Tags" class="form-control" multiple="multiple"></select>
+        </div>
+        <div class="form-group">
+            <label for="pageSize">Page Size</label>
+            <input type="number" name="PageSize" class="form-control" value="@Model.Filter.PageSize" />
+        </div>
+        <input type="hidden" name="PageNumber" id="PageNumber" value="@Model.Filter.PageNumber" />
+
+        <button type="submit" id="filterButton" class="btn btn-primary">Filter</button>
+    </form>
+</div>
+
+<div id="items-container">
+    @await Html.PartialAsync("_ItemsListPartial", Model)
+</div>
+
+<p>
+    <a asp-action="Create" asp-controller="Item" class="btn btn-success">Create New Item</a>
+</p>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Load items via AJAX on filter form submit
+            $('#filter-form').submit(function (event) {
+                event.preventDefault();
+                loadItems();
+            });
+
+            // Function to load items via AJAX
+            function loadItems(pageNumber = 1) {
+                var formData = $('#filter-form').serialize();
+                $.get('@Url.Action("Index", "Item")', formData + "&PageNumber=" + pageNumber, function (data) {
+                    $('#items-container').html($(data).find('#items-container').html());
+                    bindPaginationLinks();
+                });
+            }
+
+            // Function to bind pagination link click events
+            function bindPaginationLinks() {
+                $('#items-container').on('click', '.pagination a', function (event) {
+                    event.preventDefault();
+                    var pageNumber = $(this).data('page');
+                    loadItems(pageNumber);
+                });
+            }
+
+            // Initial binding of pagination links
+            bindPaginationLinks();
+        });
+    </script>
+}
