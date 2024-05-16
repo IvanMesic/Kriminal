@@ -1,21 +1,32 @@
 ﻿@model CreateArtistViewModel
-
+@inject DAL.Interfaces.IArtistRepository artistRepository
+@inject DAL.Interfaces.ICategoryRepository categoryRepository
 @inject DAL.Interfaces.ITagRepository tagRepository
+@inject DAL.Interfaces.IItemTagRepository ItemTagRepository
 
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    
+    var artists = artistRepository.GetAll();
+    var artistItems = new SelectList(artists, "ArtistId", "Name");
+    var categories = categoryRepository.GetAll();
+    var categoryItems = new SelectList(categories, "CategoryId", "Name");
+
     var tagItems = tagRepository.GetAll();
     var tagList = new MultiSelectList(tagItems, "TagId", "Name");
 }
 
-<h1>Create Item</h1>
+<h1>Edit Item</h1>
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Edit" method="post">
+            <div class="form-group">
+                <label asp-for="artist.ArtistId" class="control-label">Item ID</label>
+                <input asp-for="artist.ArtistId" class="form-control" readonly />
+                <span asp-validation-for="artist.ArtistId" class="text-danger"></span>
+            </div>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="artist.Name" class="control-label"></label>
@@ -53,7 +64,7 @@
             <button type="button" id="addTagBtn" class="btn btn-success mt-2">Add Tag</button>
 
             <div class="form-group">
-                <input type="submit" value="Create" style="margin-top: 20px;" class="btn btn-primary" />
+                <input type="submit" value="Submit" style="margin-top: 20px;" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -68,11 +79,23 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
         <script>
             $(document).ready(function () {
+                // Show image preview when document is ready
+                $('#imagePath').trigger('change');
+
+                // Add tag lists based on tagIds length
+                var tagIdsLength = @Model.tagIds.Count;
+                for (var i = 0; i < tagIdsLength - 1; i++) {
+                    addTagList();
+                }
+
+                // Set the values of tag lists based on tagIds
+                var tagIds = @Html.Raw(Json.Serialize(Model.tagIds));
+                $('.tag-dropdown').each(function (index) {
+                    $(this).val(tagIds[index]);
+                });
+
                 $('#addTagBtn').click(function () {
-                    var newTagGroup = $('.tag-group').first().clone();
-                    newTagGroup.find('.tag-dropdown').val('');
-                    $('#tagsContainer').append(newTagGroup);
-                    $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+                    addTagList();
                 });
 
                 $(document).on('click', '.remove-tag', function () {
@@ -81,6 +104,14 @@
                         $('.remove-tag').hide(); // Hide remove button if only one tag dropdown remains
                     }
                 });
+
+                // Function to add a new tag list
+                function addTagList() {
+                    var newTagGroup = $('.tag-group').first().clone();
+                    newTagGroup.find('.tag-dropdown').val('');
+                    $('#tagsContainer').append(newTagGroup);
+                    $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+                }
             });
         </script>
         <script>

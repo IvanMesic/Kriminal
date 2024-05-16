@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface IArtistRepository : IRepository<Artist> { }
+    public interface IArtistRepository : IRepository<Artist> 
+    {
+        List<Item> GetWorksOfArtist(int ArtistId);
+
+    
+
+
+    }
 
 }
