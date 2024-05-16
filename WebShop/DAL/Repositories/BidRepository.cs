@@ -5,5 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 public class BidRepository : Repository<Bid>, IBidRepository
 {
-    public BidRepository(DataContext context) : base(context) { }
+
+    public BidRepository(DataContext context) : base(context) 
+    {
+        
+    }
 }
