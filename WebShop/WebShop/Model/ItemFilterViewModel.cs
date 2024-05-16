@@ -23,5 +23,7 @@ namespace WebShop.Model
         public int PageSize { get; set; } = 10;
         public int TotalPages { get; set; } 
 
+        List<Item> items = new List<Item>();
+
     }
 }

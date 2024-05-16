@@ -1,21 +1,20 @@
 ﻿using AutoMapper;
 using DAL.Interfaces;
 using DAL.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Model;
 using WebShop.Services;
 
 namespace WebShop.Controllers
 {
-    public class ItemController : Controller
+    public class Item2Controller : Controller
     {
         private readonly IItemFilterService _itemFilterService;
         private readonly IItemRepository _itemRepository;
         private readonly IItemTagRepository _itemTagRepository;
         private readonly IMapper _mapper;
 
-        public ItemController(IItemFilterService itemFilterService, IItemRepository itemRepository,
+        public Item2Controller(IItemFilterService itemFilterService, IItemRepository itemRepository,
                               IItemTagRepository itemTagRepository, IMapper mapper)
         {
             _itemFilterService = itemFilterService;
@@ -24,14 +23,20 @@ namespace WebShop.Controllers
             _mapper = mapper;
         }
 
-        public ActionResult Index(ItemFilterViewModel filterModel)
+        public IActionResult Index(ItemFilterViewModel filterModel)
         {
             // Ensure PageNumber and PageSize have valid values
             filterModel.PageNumber = filterModel.PageNumber < 1 ? 1 : filterModel.PageNumber;
             filterModel.PageSize = filterModel.PageSize < 1 ? 10 : filterModel.PageSize;
 
+
+
             var filteredItems = _itemFilterService.GetFilteredItems(filterModel);
+
             int totalPages = _itemFilterService.getTotalPages();
+
+            IList<Item> items2 = _itemRepository.GetFiltered(tags: filterModel.SelectedTags.Select(tagId => new Tag { TagId = int.Parse(tagId) }).ToList(), artists: filterModel.SelectedArtists.Select(artistId => new Artist { ArtistId = int.Parse(artistId) }).ToList(), categories: filterModel.SelectedCategories.Select(categoryId => new Category { CategoryId = int.Parse(categoryId) }).ToList(), priceMax: filterModel.PriceMax, searchQuery: filterModel.SearchQuery, pageNum: null, pageSize: null);
+
 
             var filterOptions = _itemFilterService.GetFilterOptions();
             filterModel.Categories = filterOptions.Categories;
@@ -43,52 +48,49 @@ namespace WebShop.Controllers
                 Items = filteredItems,
                 Filter = filterModel,
                 TotalPages = totalPages,
-                CurrentPage = filterModel.PageNumber
+                CurrentPage = filterModel.PageNumber // Add current page information
             };
 
-            if (Request.IsAjaxRequest())
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_ItemsListPartial", itemViewModel);
+                return PartialView("_ItemList", itemViewModel);
             }
 
             return View(itemViewModel);
         }
 
-        // GET: HomeController1/Details/5
-        public ActionResult Details(int id)
+        public IActionResult Details(int id)
         {
             var item = _itemRepository.GetById(id);
             return View(item);
         }
 
-        // GET: HomeController1/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: HomeController1/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(CreateItemViewModel itemViewModel)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+            var item = _mapper.Map<Item>(itemViewModel.item);
+            _itemRepository.Add(item);
 
-        // GET: HomeController1/Edit/5
+            foreach (var tagId in itemViewModel.tagIds)
+            {
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
+                _itemTagRepository.Add(itemTag);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
 
         public ActionResult Edit(int id)
         {
             var item = _itemRepository.GetById(id);
 
-            if (item == null)
+            if (item==null)
             {
                 return View();
             }
@@ -129,43 +131,11 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: HomeController1/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
-        }
-
-        // POST: HomeController1/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-    }
-
-    public static class HttpRequestExtensions
-    {
-        public static bool IsAjaxRequest(this HttpRequest request)
-        {
-            if (request == null)
-            {
-                throw new ArgumentNullException("request");
-            }
-
-            if (request.Headers != null)
-            {
-                return request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            }
-
-            return false;
+            var item = _itemRepository.GetById(id);
+            _itemRepository.Delete(item);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

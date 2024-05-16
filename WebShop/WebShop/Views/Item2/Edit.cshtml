@@ -1,0 +1,150 @@
+﻿@model CreateItemViewModel
+@inject DAL.Interfaces.IArtistRepository artistRepository
+@inject DAL.Interfaces.ICategoryRepository categoryRepository
+@inject DAL.Interfaces.ITagRepository tagRepository
+@inject DAL.Interfaces.IItemTagRepository ItemTagRepository
+
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var artists = artistRepository.GetAll();
+    var artistItems = new SelectList(artists, "ArtistId", "Name");
+    var categories = categoryRepository.GetAll();
+    var categoryItems = new SelectList(categories, "CategoryId", "Name");
+
+    var tagItems = tagRepository.GetAll();
+    var tagList = new MultiSelectList(tagItems, "TagId", "Name");
+}
+
+<h1>Edit Item</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="form-group">
+                <label asp-for="item.ItemId" class="control-label">Item ID</label>
+                <input asp-for="item.ItemId" class="form-control" readonly />
+                <span asp-validation-for="item.ItemId" class="text-danger"></span>
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="item.Title" class="control-label"></label>
+                <input asp-for="item.Title" class="form-control" />
+                <span asp-validation-for="item.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="item.Description" class="control-label"></label>
+                <input asp-for="item.Description" class="form-control" />
+                <span asp-validation-for="item.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="item.Price" class="control-label"></label>
+                <input asp-for="item.Price" class="form-control" />
+                <span asp-validation-for="item.Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="item.CreatedAt" class="control-label"></label>
+                <input asp-for="item.CreatedAt" type="date" class="form-control" />
+                <span asp-validation-for="item.CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="item.ImagePath" class="control-label">Image Path</label>
+                <input asp-for="item.ImagePath" id="imagePath" class="form-control" />
+                <span asp-validation-for="item.ImagePath" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" id="imagePreview" style="margin-top:20px;margin-bottom:20px; display: none;">
+                <label>Image Preview:</label>
+                <img id="imgPreview" src="#" alt="Preview" style="max-width: 100%; max-height: 200px;" />
+            </div>
+            <div class="form-group">
+                <label asp-for="item.ArtistId" class="control-label">Artist</label>
+                @Html.DropDownListFor(m => m.item.ArtistId, artistItems, new { @class = "form-control" })
+                <span asp-validation-for="item.ArtistId" class="text-danger" />
+            </div>
+            <div class="form-group">
+                <label asp-for="item.CategoryId" class="control-label">Category</label>
+                @Html.DropDownListFor(m => m.item.CategoryId, categoryItems, new { @class = "form-control" })
+                <span asp-validation-for="item.CategoryId" class="text-danger" />
+            </div>
+
+            <div id="tagsContainer" style="margin-top: 20px;">
+                <label asp-for="item.ItemTags" class="control-label">Tags</label>
+
+                <div class="form-group tag-group">
+                    <div class="input-group">
+                        @Html.DropDownListFor(m => m.tagIds, tagList, new { @class = "form-control tag-dropdown" })
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-danger remove-tag" style="margin-left: 5px; display: none;">-</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="addTagBtn" class="btn btn-success mt-2">Add Tag</button>
+
+            <div class="form-group">
+                <input type="submit" value="Submit" style="margin-top: 20px;" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script>
+            $(document).ready(function () {
+                // Show image preview when document is ready
+                $('#imagePath').trigger('change');
+
+                // Add tag lists based on tagIds length
+                var tagIdsLength = @Model.tagIds.Count;
+                for (var i = 0; i < tagIdsLength - 1; i++) {
+                    addTagList();
+                }
+
+                // Set the values of tag lists based on tagIds
+                var tagIds = @Html.Raw(Json.Serialize(Model.tagIds));
+                $('.tag-dropdown').each(function (index) {
+                    $(this).val(tagIds[index]);
+                });
+
+                $('#addTagBtn').click(function () {
+                    addTagList();
+                });
+
+                $(document).on('click', '.remove-tag', function () {
+                    $(this).closest('.tag-group').remove();
+                    if ($('.tag-group').length === 1) {
+                        $('.remove-tag').hide(); // Hide remove button if only one tag dropdown remains
+                    }
+                });
+
+                // Function to add a new tag list
+                function addTagList() {
+                    var newTagGroup = $('.tag-group').first().clone();
+                    newTagGroup.find('.tag-dropdown').val('');
+                    $('#tagsContainer').append(newTagGroup);
+                    $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+                }
+            });
+        </script>
+        <script>
+            // Show image preview when image path is changed
+            $('#imagePath').change(function () {
+                var imagePath = $(this).val();
+                if (imagePath) {
+                    $('#imgPreview').attr('src', imagePath);
+                    $('#imagePreview').show();
+                } else {
+                    $('#imagePreview').hide();
+                }
+            });
+        </script>
+    }
+}
