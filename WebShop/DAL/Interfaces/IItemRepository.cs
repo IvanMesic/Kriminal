@@ -15,9 +15,7 @@ namespace DAL.Interfaces
      IList<Category>? categories = null,
      decimal? priceMin = 0,
      decimal? priceMax = null,
-     string? searchQuery = null,
-     int? pageNum = null,
-     int? pageSize = null);
+     string? searchQuery = null);
     }
     
 

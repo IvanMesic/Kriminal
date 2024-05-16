@@ -40,7 +40,6 @@ namespace WebShop
             builder.Services.AddScoped<ITransactionItemRepository, TransactionItemRepository>();
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
-            builder.Services.AddScoped<IItemFilterService, ItemFilterService>();
 
             builder.Services.AddHttpContextAccessor();
 

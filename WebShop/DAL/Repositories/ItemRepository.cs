@@ -40,10 +40,7 @@ public class ItemRepository : Repository<Item>, IItemRepository
      IList<Category>? categories = null,
      decimal? priceMin = 0,
      decimal? priceMax = null,
-     string? searchQuery = null,
-     int? pageNum = 1,
-     int? pageSize = 10
- )
+     string? searchQuery = null)
     {
 
         var query = _context.Item.AsQueryable();
@@ -92,13 +89,6 @@ public class ItemRepository : Repository<Item>, IItemRepository
         {
             query = query.Where(i => i.Title.Contains(searchQuery) || i.Description.Contains(searchQuery));
         }
-
-        if (pageNum != null && pageSize != null)
-        {
-            query = query.Skip((pageNum.Value - 1) * pageSize.Value).Take(pageSize.Value);
-        }
-
-
 
         return query.ToList();
     }

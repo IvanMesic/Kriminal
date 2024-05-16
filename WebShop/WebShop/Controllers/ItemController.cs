@@ -1,64 +1,100 @@
 ﻿using AutoMapper;
 using DAL.Interfaces;
 using DAL.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Model;
-using WebShop.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebShop.Controllers
 {
     public class ItemController : Controller
     {
-        private readonly IItemFilterService _itemFilterService;
         private readonly IItemRepository _itemRepository;
+        
+        private readonly ITagRepository _tagRepository;
         private readonly IItemTagRepository _itemTagRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IArtistRepository _artistRepository;
+
         private readonly IMapper _mapper;
 
-        public ItemController(IItemFilterService itemFilterService, IItemRepository itemRepository,
-                              IItemTagRepository itemTagRepository, IMapper mapper)
+        public ItemController(
+            IItemRepository itemRepository,
+            ITagRepository tagRepository,
+            IItemTagRepository itemTagRepository,
+            IMapper mapper, 
+            ICategoryRepository categoryRepository, 
+            IArtistRepository artistRepository)
         {
-            _itemFilterService = itemFilterService;
             _itemRepository = itemRepository;
+
+            _tagRepository = tagRepository;
             _itemTagRepository = itemTagRepository;
+            _categoryRepository = categoryRepository;
+            _artistRepository = artistRepository;
+
             _mapper = mapper;
         }
 
-        public ActionResult Index(ItemFilterViewModel filterModel)
+        public ActionResult Index(ItemListViewModel itemListViewModel, int? pageNum)
         {
-            // Ensure PageNumber and PageSize have valid values
-            filterModel.PageNumber = filterModel.PageNumber < 1 ? 1 : filterModel.PageNumber;
-            filterModel.PageSize = filterModel.PageSize < 1 ? 10 : filterModel.PageSize;
+            int pageSize = 10;
+            int pageNumber = (pageNum ?? 1);
 
-            var filteredItems = _itemFilterService.GetFilteredItems(filterModel);
-            int totalPages = _itemFilterService.getTotalPages();
-
-            var filterOptions = _itemFilterService.GetFilterOptions();
-            filterModel.Categories = filterOptions.Categories;
-            filterModel.Artists = filterOptions.Artists;
-            filterModel.Tags = filterOptions.Tags;
-
-            var itemViewModel = new ItemListViewModel
+            foreach (int tagId in itemListViewModel.selectedTags)
             {
-                Items = filteredItems,
-                Filter = filterModel,
-                TotalPages = totalPages,
-                CurrentPage = filterModel.PageNumber
-            };
+                itemListViewModel.tags.Add(_tagRepository.GetById(tagId));
+            }
+
+            foreach(int categoryId in itemListViewModel.selectedCategories)
+            {
+                itemListViewModel.categories.Add(_categoryRepository.GetById(categoryId));
+            }
+
+            foreach(int artistId in itemListViewModel.selectedArtists)
+            {
+                itemListViewModel.artists.Add(_artistRepository.GetById(artistId));
+            }
+
+            IList<Item> filteredItems = _itemRepository.GetFiltered(
+                tags: itemListViewModel.tags,
+                artists: itemListViewModel.artists,
+                categories: itemListViewModel.categories,
+                priceMin: itemListViewModel.priceMin,
+                priceMax: itemListViewModel.priceMax,
+                searchQuery: itemListViewModel.searchQuery
+                );
+
+            int totalPages = (int)Math.Ceiling((double)filteredItems.Count() / pageSize);
+
+            ViewBag.TotalPages = totalPages; //SET THESE
+            ViewBag.CurrentPage = pageNumber;//SET THESE
+
+            var filteredItemsPaged = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            itemListViewModel.items = filteredItemsPaged.ToArray();
+
 
             if (Request.IsAjaxRequest())
             {
-                return PartialView("_ItemsListPartial", itemViewModel);
+                return PartialView("_ItemsListPartial", itemListViewModel);
             }
 
-            return View(itemViewModel);
+            return View(itemListViewModel);
         }
 
         // GET: HomeController1/Details/5
         public ActionResult Details(int id)
         {
             var item = _itemRepository.GetById(id);
-            return View(item);
+
+            if(item != null)
+            {
+                return View(item);
+            }
+
+            return RedirectToAction(nameof(Index));
+
         }
 
         // GET: HomeController1/Create
@@ -90,7 +126,7 @@ namespace WebShop.Controllers
 
             if (item == null)
             {
-                return View();
+                return RedirectToAction(nameof(Index));
             }
 
             var itemVM = new CreateItemViewModel { item = item, tagIds = new List<int>() };
@@ -100,7 +136,12 @@ namespace WebShop.Controllers
                 itemVM.tagIds.Add(itemTag.TagId);
             }
 
-            return View(itemVM);
+            if (itemVM != null)
+            {
+                return View(itemVM);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
