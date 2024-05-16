@@ -90,7 +90,10 @@ public class ItemRepository : Repository<Item>, IItemRepository
             query = query.Where(i => i.Title.Contains(searchQuery) || i.Description.Contains(searchQuery));
         }
 
-        return query.ToList();
+        return query.Include(i => i.Artist)
+            .Include(i => i.Category)
+            .Include(i => i.ItemTags)
+                .ThenInclude(it => it.Tag).ToList();
     }
 
 
