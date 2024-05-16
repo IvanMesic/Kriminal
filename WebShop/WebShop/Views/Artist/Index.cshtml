@@ -35,7 +35,7 @@
             </td>
                 @Html.DisplayFor(modelItem => item.ImagePath)
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.ArtistId }) |
+                @Html.ActionLink("Edit", "Edit", new { id=item.ArtistId }) |1
                 @Html.ActionLink("Details", "Details", new { id = item.ArtistId }) |
                 @Html.ActionLink("Delete", "Delete", new { id = item.ArtistId })
             </td>
@@ -43,3 +43,4 @@
 }
     </tbody>
 </table>
+

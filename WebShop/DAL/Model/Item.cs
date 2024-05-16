@@ -14,6 +14,8 @@ namespace DAL.Model
         public DateTime CreatedAt { get; set; }
         public string ImagePath { get; set; }
 
+        public bool Sold { get; set; } = false;
+
         // Foreign keys
         public int ArtistId { get; set; }
         public int CategoryId { get; set; }
