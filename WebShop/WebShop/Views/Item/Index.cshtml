@@ -6,7 +6,6 @@
 @{
     ViewBag.Title = "Index";
 
-    // Fetch categories, artists, and tags from repositories
     var categories = new MultiSelectList(_categoryRepository.GetAll(), "CategoryId", "Name");
     var artists = new MultiSelectList(_artistRepository.GetAll(),"ArtistId","Name"); 
     var tags = new MultiSelectList(_tagRepository.GetAll(),"TagId","Name"); 
@@ -52,10 +51,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-
-
             $('#filterButton').on('click', function () {
-                $('#PageNumber').val(1);  // Reset hidden PageNumber input to 1
+                $('#PageNumber').val(1);
             });
 
             function loadItems() {
@@ -65,14 +62,13 @@
                     data: $('#filter-form').serialize(),
                     success: function (result) {
                         $('#items-container').html(result);
-                        // Update page number in hidden field
                         var pageNumber = $('.pagination').find('.active').text();
                         $('#PageNumber').val(pageNumber);
                     }
                 });
             }
 
-            function loadPage(pageNumber) {
+            window.loadPage = function (pageNumber) {
                 $('#PageNumber').val(pageNumber);
                 loadItems();
             }

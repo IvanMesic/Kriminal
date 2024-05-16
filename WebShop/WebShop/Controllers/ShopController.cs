@@ -49,10 +49,10 @@ namespace WebShop.Controllers
 
         }
 
-        public ActionResult Index(ItemListViewModel itemListViewModel, int? pageNum)
+        public ActionResult Index(ItemListViewModel itemListViewModel)
         {
             int pageSize = 10;
-            int pageNumber = (pageNum ?? 1);
+            int pageNumber = (itemListViewModel.pageNumber ?? 1);
 
             foreach (int tagId in itemListViewModel.selectedTags)
             {
@@ -81,7 +81,7 @@ namespace WebShop.Controllers
             int totalPages = (int)Math.Ceiling((double)filteredItems.Count() / pageSize);
 
             ViewBag.TotalPages = totalPages; //SET THESE
-            ViewBag.CurrentPage = pageNumber;//SET THESE
+            itemListViewModel.pageNumber = pageNumber;//SET THESE
 
             var filteredItemsPaged = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
@@ -90,11 +90,10 @@ namespace WebShop.Controllers
 
             if (Request.IsAjaxRequest())
             {
-                return PartialView("_ItemsListPartial", itemListViewModel);
+                return PartialView("_ItemsListPartialShop", itemListViewModel);
             }
 
             return View(itemListViewModel);
         }
-
     }
 }

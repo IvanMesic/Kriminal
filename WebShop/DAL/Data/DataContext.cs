@@ -47,7 +47,11 @@ namespace DAL.Data
 
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
-                .HasConversion<string>(); 
+                .HasConversion<string>();
+
+            modelBuilder.Entity<TransactionItem>()
+    .Property(ti => ti.TransactionItemId)
+    .ValueGeneratedOnAdd();
         }
     }
 }

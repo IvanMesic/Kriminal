@@ -15,6 +15,7 @@ namespace WebShop.Model
         public decimal? priceMin { get; set; }
         public decimal? priceMax { get; set; }
         public string? searchQuery { get; set; }
+        public int? pageNumber { get; set; }
 
         public IList<Item>? items { get; set; }
 
