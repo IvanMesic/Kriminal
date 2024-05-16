@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using DAL.Interfaces;
+using DAL.Model;
+using DAL.Repositories;
 using DAL.ServiceInterfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebShop.Model;
 
 namespace WebShop.Controllers
 {
@@ -16,16 +19,19 @@ namespace WebShop.Controllers
         /// Add direct Purchase option when Transactions Are implemented
         /// </summary>
 
-
+        private readonly ITagRepository _tagRepository;
         ICartService _cartService;
         IItemRepository _itemRepository;
+        ICategoryRepository _categoryRepository;
+        IArtistRepository _artistRepository;
         IMapper _mapper;
 
-        public ShopController(IItemRepository itemRepository, IMapper mapper, ICartService cartService)
+        public ShopController(IItemRepository itemRepository, IMapper mapper, ICartService cartService, ITagRepository tagRepository)
         {
             _itemRepository = itemRepository;
             _mapper = mapper;
             _cartService = cartService;
+            _tagRepository = tagRepository;
         }
 
         [HttpPost]
@@ -43,10 +49,51 @@ namespace WebShop.Controllers
 
         }
 
-        public ActionResult Index()
+        public ActionResult Index(ItemListViewModel itemListViewModel, int? pageNum)
         {
-            var items = _itemRepository.GetAll();
-            return View(items);
+            int pageSize = 10;
+            int pageNumber = (pageNum ?? 1);
+
+            foreach (int tagId in itemListViewModel.selectedTags)
+            {
+                itemListViewModel.tags.Add(_tagRepository.GetById(tagId));
+            }
+
+            foreach (int categoryId in itemListViewModel.selectedCategories)
+            {
+                itemListViewModel.categories.Add(_categoryRepository.GetById(categoryId));
+            }
+
+            foreach (int artistId in itemListViewModel.selectedArtists)
+            {
+                itemListViewModel.artists.Add(_artistRepository.GetById(artistId));
+            }
+
+            IList<Item> filteredItems = _itemRepository.GetFiltered(
+                tags: itemListViewModel.tags,
+                artists: itemListViewModel.artists,
+                categories: itemListViewModel.categories,
+                priceMin: itemListViewModel.priceMin,
+                priceMax: itemListViewModel.priceMax,
+                searchQuery: itemListViewModel.searchQuery
+                );
+
+            int totalPages = (int)Math.Ceiling((double)filteredItems.Count() / pageSize);
+
+            ViewBag.TotalPages = totalPages; //SET THESE
+            ViewBag.CurrentPage = pageNumber;//SET THESE
+
+            var filteredItemsPaged = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            itemListViewModel.items = filteredItemsPaged.ToArray();
+
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ItemsListPartial", itemListViewModel);
+            }
+
+            return View(itemListViewModel);
         }
 
     }

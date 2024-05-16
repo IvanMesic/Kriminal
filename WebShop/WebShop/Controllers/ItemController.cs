@@ -97,28 +97,27 @@ namespace WebShop.Controllers
 
         }
 
-        // GET: HomeController1/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: HomeController1/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(CreateItemViewModel itemViewModel)
         {
-            try
+            var item = _mapper.Map<Item>(itemViewModel.item);
+            _itemRepository.Add(item);
+
+            foreach (var tagId in itemViewModel.tagIds)
             {
-                return RedirectToAction(nameof(Index));
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
+                _itemTagRepository.Add(itemTag);
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: HomeController1/Edit/5
 
         public ActionResult Edit(int id)
         {
@@ -170,27 +169,14 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: HomeController1/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
-        }
-
-        // POST: HomeController1/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var item = _itemRepository.GetById(id);
+            _itemRepository.Delete(item);
+            return RedirectToAction(nameof(Index));
         }
     }
+}
 
     public static class HttpRequestExtensions
     {
@@ -209,4 +195,4 @@ namespace WebShop.Controllers
             return false;
         }
     }
-}
+

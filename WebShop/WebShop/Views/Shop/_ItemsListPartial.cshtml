@@ -16,7 +16,7 @@
         <tbody>
             @foreach (var item in Model.items)
             {
-                <tr>
+                <tr style="max-width: 70px; word-wrap: break-word" >
                     <td>@Html.DisplayFor(modelItem => item.Title)</td>
                     <td>@Html.DisplayFor(modelItem => item.Price)</td>
                     <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
@@ -24,9 +24,11 @@
                     <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.Artist.Name)</td>
                     <td>
-                        @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }) |
-                        @Html.ActionLink("Details", "Details", new { id = item.ItemId }) |
-                        @Html.ActionLink("Delete", "Delete", new { id = item.ItemId })
+                    <form asp-action="AddToCart" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@item.ItemId" />
+                        <input type="number" name="quantity" value="1" min="1" style="width: 50px;" />
+                        <input type="submit" value="Add to Cart" class="btn btn-primary" />
+                    </form>
                     </td>
                 </tr>
             }
