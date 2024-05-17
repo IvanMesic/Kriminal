@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 /*
     -package manager console
     1. dotnet ef migrations add {migration name} --project WebShop
-    2.dotnet ef database update --project WebShop
+    2. dotnet ef database update --project WebShop
 */
 
 namespace DAL.Data

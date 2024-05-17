@@ -14,7 +14,7 @@
     var categoryItems = new SelectList(categories, "CategoryId", "Name");
 
     var tagItems = tagRepository.GetAll();
-    var tagList = new MultiSelectList (tagItems, "TagId", "Name");
+    var tagList = new MultiSelectList(tagItems, "TagId", "Name");
 }
 
 <h1>Create Item</h1>
@@ -42,12 +42,12 @@
                 <label asp-for="item.CreatedAt" class="control-label"></label>
                 <input asp-for="item.CreatedAt" type="date" class="form-control" />
                 <span asp-validation-for="item.CreatedAt" class="text-danger"></span>
-            </div>
+            </div>     
             <div class="form-group">
                 <label asp-for="item.ExpirationDate" class="control-label"></label>
                 <input asp-for="item.ExpirationDate" type="date" class="form-control" />
                 <span asp-validation-for="item.ExpirationDate" class="text-danger"></span>
-            </div>
+            </div>            
             <div class="form-group">
                 <label asp-for="item.ImagePath" class="control-label">Image Path</label>
                 <input asp-for="item.ImagePath" id="imagePath" class="form-control" />

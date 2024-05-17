@@ -21,8 +21,10 @@ public class ItemRepository : Repository<Item>, IItemRepository
             .Include(i => i.Category)
             .Include(i => i.ItemTags)
                 .ThenInclude(it => it.Tag)
+            .Include(i => i.Owner)
             .ToList();
     }
+
     public override Item GetById(int id)
     {
         return _context.Item
@@ -30,6 +32,7 @@ public class ItemRepository : Repository<Item>, IItemRepository
             .Include(i => i.Category)
             .Include(i => i.ItemTags)
                 .ThenInclude(it => it.Tag)
+                .Include(i => i.Owner)
             .FirstOrDefault(i => i.ItemId == id);
     }
 
@@ -93,7 +96,8 @@ public class ItemRepository : Repository<Item>, IItemRepository
         return query.Include(i => i.Artist)
             .Include(i => i.Category)
             .Include(i => i.ItemTags)
-                .ThenInclude(it => it.Tag).ToList();
+                .ThenInclude(it => it.Tag)
+                .Include(i => i.Owner).ToList();
     }
 
 

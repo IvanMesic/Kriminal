@@ -22,19 +22,19 @@ namespace WebShop.Controllers
         /// </summary>
 
         private readonly ITagRepository _tagRepository;
-        ICartService _cartService;
-        IItemRepository _itemRepository;
-        ICategoryRepository _categoryRepository;
-        IArtistRepository _artistRepository;
-        IMapper _mapper;
+        private readonly ICartService _cartService;
+        private readonly IItemRepository _itemRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IArtistRepository _artistRepository;
+        private readonly IMapper _mapper;
         private readonly IBidRepository _bidRepository;
         private readonly ITransactionService _transactionService;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionItemRepository _transactionItemRepository;
-        
+        private readonly IItemTagRepository _itemTagRepository;
 
        
-        public ShopController(IItemRepository itemRepository, IMapper mapper, ICartService cartService, ITagRepository tagRepository, IBidRepository bidRepository, ITransactionService transactionService, ITransactionRepository transactionRepository, ITransactionItemRepository transactionItemRepository, IArtistRepository artistRepository, ICategoryRepository categoryRepository)
+        public ShopController(IItemRepository itemRepository, IMapper mapper, ICartService cartService, ITagRepository tagRepository, IBidRepository bidRepository, ITransactionService transactionService, ITransactionRepository transactionRepository, ITransactionItemRepository transactionItemRepository, IArtistRepository artistRepository, ICategoryRepository categoryRepository, IItemTagRepository itemTagRepository)
         {
             _itemRepository = itemRepository;
             _mapper = mapper;
@@ -46,6 +46,7 @@ namespace WebShop.Controllers
             _transactionItemRepository = transactionItemRepository;
             _artistRepository = artistRepository;
             _categoryRepository = categoryRepository;
+            _itemTagRepository = itemTagRepository;
         }
 
         [HttpPost]
@@ -62,6 +63,39 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
 
         }
+
+        public ActionResult TimeoutBid(int itemId)
+        {
+            
+            Bid bid = _bidRepository.GetHighestBidForItem(itemId);
+
+            Item item = _itemRepository.GetById(itemId);
+
+
+                item.Sold = true;
+                _itemRepository.Update(item);
+
+                var transaction = new Transaction()
+                {
+                    UserId = bid.UserId,
+                    Date = DateTime.Now,
+                    TotalAmount = bid.Amount
+                };
+
+                _transactionRepository.Add(transaction);
+
+                var transactionItem = new TransactionItem()
+                {
+                    ItemId = item.ItemId,
+                    TransactionId = transaction.TransactionId
+                };
+
+                _transactionItemRepository.Add(transactionItem);
+
+                return Ok();
+        }
+
+        
 
         [HttpPost]
         public JsonResult PlaceBid(int bid, int itemId)
@@ -81,6 +115,13 @@ namespace WebShop.Controllers
             }
 
             var userId = int.Parse(userIdClaim.Value);
+
+            if (item.OwnerId == userId)
+            {
+                return Json(new { success = false, message = "Can not bid on your own Auction" });
+            }
+
+
             Bid tempBid = new Bid()
             {
                 UserId = userId,
@@ -146,6 +187,35 @@ namespace WebShop.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
+        
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(CreateItemViewModel itemViewModel)
+        {
+            var item = _mapper.Map<Item>(itemViewModel.item);
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            item.OwnerId = int.Parse(userIdClaim.Value);
+
+            _itemRepository.Add(item);
+
+            foreach (var tagId in itemViewModel.tagIds)
+            {
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
+                _itemTagRepository.Add(itemTag);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
 
         public ActionResult Index(ItemListViewModel itemListViewModel)
         {
