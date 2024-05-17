@@ -5,44 +5,136 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Transaction Details</h1>
-
-<div>
-    <h4>Transaction</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Date)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Date)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.TotalAmount)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TotalAmount)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Username)
-        </dd>
-        @foreach (var transactionItem in Model.TransactionItems)
-        {
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(_ => transactionItem.Item.Title)  
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(_ => transactionItem.Item.Title)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(_ => transactionItem.Item.Price)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(_ => transactionItem.Item.Price)
-            </dd>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
         }
-    </dl>
-</div>
+
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+            color: #FFA726;
+            padding: 0 20px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .transaction-info, .items-container {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+            .transaction-info dt, .transaction-info dd {
+                font-size: 1.1em;
+                color: #CCCCCC;
+            }
+
+            .transaction-info dt {
+                font-weight: bold;
+                color: #FFA726;
+            }
+
+        .items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
+        }
+
+        .item-card {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 350px;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+            .item-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .item-card img {
+                width: 100%;
+                height: 250px;
+                object-fit: cover;
+                border-bottom: 3px solid #FFA726;
+                transition: border-bottom 0.3s ease;
+            }
+
+                .item-card img:hover {
+                    border-bottom: 3px solid #FF9800;
+                }
+
+        .item-card-body {
+            padding: 15px;
+        }
+
+        .item-card-title {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+        }
+
+        .item-card-subtitle {
+            font-size: 1em;
+            color: #AAAAAA;
+            margin-bottom: 10px;
+        }
+
+        .item-card-text {
+            color: #CCCCCC;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Transaction Details</h1>
+    <div class="container">
+        <div class="transaction-info">
+            <h4>Transaction</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Date)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Date)</dd>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.TotalAmount)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.TotalAmount)</dd>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.User)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.User.Username)</dd>
+            </dl>
+        </div>
+
+        <div class="items-container">
+            @foreach (var transactionItem in Model.TransactionItems)
+            {
+                <div class="item-card">
+                    <a href="@Url.Action("ItemDetails", "Shop", new { id = transactionItem.Item.ItemId })">
+                        <img src="@transactionItem.Item.ImagePath" alt="@transactionItem.Item.Title">
+                    </a>
+                    <div class="item-card-body">
+                        <h3 class="item-card-title">@Html.DisplayFor(modelItem => transactionItem.Item.Title)</h3>
+                        <h4 class="item-card-subtitle">@Html.DisplayFor(modelItem => transactionItem.Item.Artist.Name)</h4>
+                        <p class="item-card-text">Price: @string.Format("{0:n0} $", transactionItem.Item.Price)</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>

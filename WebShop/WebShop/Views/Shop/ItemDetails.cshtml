@@ -1,0 +1,234 @@
+﻿@using DAL.Model
+@model DAL.Model.Item
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+            color: #FFA726;
+            padding: 0 20px; /* Add padding to the header */
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 0 20px; /* Add padding to the container */
+        }
+
+        .left-column {
+            flex: 1 1 45%;
+            max-width: 45%;
+        }
+
+        .right-column {
+            flex: 1 1 45%;
+            max-width: 45%;
+        }
+
+        .detail-container, .bids-container {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+            .detail-container img {
+                max-width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+                border-bottom: 3px solid #FFA726;
+            }
+
+            .detail-container dt {
+                font-weight: bold;
+                color: #FFA726;
+            }
+
+            .detail-container dd {
+                margin-bottom: 10px;
+                color: #CCCCCC;
+            }
+
+        .btn-primary {
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .quantity-input {
+            width: 60px;
+            padding: 5px;
+            border-radius: 15px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #FFF;
+            text-align: center;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .quantity-input:focus {
+                border-color: #FFA726;
+                outline: none;
+                box-shadow: 0 0 8px rgba(255, 152, 0, 0.2);
+            }
+
+        .alert-warning {
+            background-color: #FFA726;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .bids-list ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .bids-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #444;
+            color: #AAAAAA;
+        }
+
+            .bids-list li:last-child {
+                border-bottom: none;
+            }
+    </style>
+</head>
+<body>
+    <h1>Details</h1>
+    <div class="container">
+        <div class="left-column">
+            <div class="detail-container">
+                <img src="@Model.ImagePath" alt="Item Image" />
+                <h4>Item Information</h4>
+                <hr />
+                <dl>
+                    <dt>@Html.DisplayNameFor(model => model.Title)</dt>
+                    <dd>@Html.DisplayFor(model => model.Title)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.Description)</dt>
+                    <dd>@Html.DisplayFor(model => model.Description)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.Price)</dt>
+                    <dd>@Html.DisplayFor(model => model.Price)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.CreatedAt)</dt>
+                    <dd>@Html.DisplayFor(model => model.CreatedAt)</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="right-column">
+            <div class="bids-container">
+                @if (Model.Sold)
+                {
+                    <div class="alert alert-warning" role="alert">
+                        This item has been sold and is no longer available for bidding.
+                    </div>
+                }
+                <form id="placeBidForm" method="post" style="display:inline;">
+                    <input type="hidden" name="itemId" value="@Model.ItemId" />
+                    <input type="number" name="bid" value="1" min="1" max="@Model.Price" class="quantity-input" @(Model.Sold ? "disabled" : "") />
+                    <input type="submit" value="Place Bid" class="btn btn-primary" @(Model.Sold ? "disabled" : "") />
+                </form>
+                <div class="bids-list" id="bidsList">
+                    <ul>
+                        @foreach (Bid bid in ViewBag.Bids)
+                        {
+                            <li>@bid.Amount  @bid.User.Username</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:center; margin-top: 20px;">
+        @Html.ActionLink("Edit", "Edit", new { id = Model.ItemId }, new { @class = "btn btn-primary" }) |
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+
+    @section Scripts {
+        <script>
+            document.getElementById('placeBidForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const form = event.target;
+                const formData = new FormData(form);
+
+                fetch('@Url.Action("PlaceBid", "Shop")', {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (data.redirectUrl) {
+                                window.location.href = data.redirectUrl;
+                            } else {
+                                updateBidsList();
+                            }
+                        } else {
+                            alert(data.message);
+                            window.location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error placing bid');
+                        window.location.reload();
+                    });
+            });
+
+            function updateBidsList() {
+                fetch('@Url.Action("GetBids", "Shop", new { itemId = Model.ItemId })')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('bidsList').innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error updating bids list');
+                    });
+            }
+
+            setInterval(updateBidsList, 1000);
+        </script>
+    }
+</body>
+</html>

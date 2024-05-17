@@ -32,6 +32,7 @@
             overflow: hidden;
             width: 350px;
             transition: transform 0.3s ease;
+            position: relative;
         }
 
             .card:hover {
@@ -49,6 +50,26 @@
                 .card img:hover {
                     border-bottom: 3px solid #FF9800;
                 }
+
+            .card .sold-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2em;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .card.sold .sold-overlay {
+                opacity: 1;
+            }
 
         .card-body {
             padding: 15px;
@@ -87,6 +108,11 @@
             .btn-primary:hover {
                 background: linear-gradient(#FF9800, #FFA726);
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .btn-primary:disabled {
+                background: #AAA;
+                cursor: not-allowed;
             }
 
         .quantity-input {
@@ -135,16 +161,22 @@
     <div class="card-container">
         @foreach (var item in Model.items)
         {
-            <div class="card">
-                <img src="@item.ImagePath" alt="@item.Title">
+            <div class="card @(item.Sold ? "sold" : "")">
+                <a href="@Url.Action("ItemDetails", "Shop", new { id = item.ItemId })">
+                    <img src="@item.ImagePath" alt="@item.Title">
+                    @if (item.Sold)
+                    {
+                        <div class="sold-overlay">Sold!</div>
+                    }
+                </a>
                 <div class="card-body">
                     <h3 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h3>
                     <h4 class="card-subtitle">@Html.DisplayFor(modelItem => item.Artist.Name)</h4>
                     <p class="card-text">Price: @string.Format("{0:n0} $", item.Price)</p>
                     <form asp-action="AddToCart" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="@item.ItemId" />
-                        <input type="number" name="quantity" value="1" min="1" class="quantity-input" />
-                        <input type="submit" value="Add to Cart" class="btn btn-primary" />
+                        <input type="number" name="quantity" value="1" min="1" class="quantity-input" @(item.Sold ? "disabled" : "") />
+                        <input type="submit" value="Add to Cart" class="btn btn-primary" @(item.Sold ? "disabled" : "") />
                     </form>
                 </div>
             </div>

@@ -11,9 +11,10 @@ namespace DAL.Model
 
         // Foreign keys
         public int ItemId { get; set; }
+        public int UserId { get; set; }
 
         // Navigation properties
         public virtual Item Item { get; set; }
-        public virtual ICollection<UserBid> UserBids { get; set; }
+        public virtual User User{ get; set; }
     }
 }

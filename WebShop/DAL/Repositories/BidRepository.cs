@@ -2,6 +2,7 @@
 using DAL.Interfaces;
 using DAL.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 public class BidRepository : Repository<Bid>, IBidRepository
 {
@@ -16,25 +17,33 @@ public class BidRepository : Repository<Bid>, IBidRepository
     public override IList<Bid> GetAll()
     {
         return _context.Bid
-            .Include(b => b.UserBids)
-                .ThenInclude(ub => ub.User)
+                .Include(b => b.User)
             .ToList();
     }
     public override Bid GetById(int id)
     {
         return _context.Bid
-            .Include(b => b.UserBids)
-                .ThenInclude(ub => ub.User)
+            .Include(b => b.User)
             .FirstOrDefault(b => b.BidId == id);
     }
 
     public IList<Bid> GetAllBidsForItem(int itemId)
     {
-        return GetAll().Where(b => b.ItemId == itemId).OrderBy(b => b.Amount).ToList();
+        return GetAll().Where(b => b.ItemId == itemId).OrderBy(b => b.Amount).Reverse().ToList();
     }
 
     public Bid GetHighestBidForItem(int itemId)
     {
-        return GetAll().Where(b => b.ItemId == itemId).OrderBy(b => b.Amount).First();
+        var bids = GetAll().Where(b => b.ItemId == itemId).OrderBy(b => b.Amount).Reverse();
+        if (bids.IsNullOrEmpty())
+        {
+            return new Bid()
+            {
+                ItemId = itemId,
+                Amount = 0
+            };
+        }
+
+        return GetAll().Where(b => b.ItemId == itemId).OrderBy(b => b.Amount).Reverse().First();
     }
 }

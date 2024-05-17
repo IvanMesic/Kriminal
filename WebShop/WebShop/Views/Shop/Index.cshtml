@@ -6,9 +6,9 @@
 @{
     ViewBag.Title = "Index";
 
-    var categories = new MultiSelectList(_categoryRepository.GetAll(), "CategoryId", "Name");
-    var artists = new MultiSelectList(_artistRepository.GetAll(), "ArtistId", "Name");
-    var tags = new MultiSelectList(_tagRepository.GetAll(), "TagId", "Name");
+    var categories = _categoryRepository.GetAll();
+    var artists = _artistRepository.GetAll();
+    var tags = _tagRepository.GetAll();
 }
 
 <button id="filter-toggle-btn" class="btn btn-primary">Show Filters</button>
@@ -29,15 +29,60 @@
         </div>
         <div class="form-group">
             <label for="categories">Categories</label>
-            @Html.ListBoxFor(m => m.selectedCategories, categories, new { @class = "form-control", multiple = "multiple" })
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownCategories" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select Categories
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownCategories">
+                    @foreach (var category in categories)
+                    {
+                        <div class="form-check dropdown-item">
+                            <input class="form-check-input" type="checkbox" name="selectedCategories" value="@category.CategoryId" @(Model.selectedCategories.Contains(category.CategoryId) ? "checked" : "") />
+                            <label class="form-check-label" for="categories">
+                                @category.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label for="artists">Artists</label>
-            @Html.ListBoxFor(m => m.selectedArtists, artists, new { @class = "form-control", multiple = "multiple" })
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownArtists" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select Artists
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownArtists">
+                    @foreach (var artist in artists)
+                    {
+                        <div class="form-check dropdown-item">
+                            <input class="form-check-input" type="checkbox" name="selectedArtists" value="@artist.ArtistId" @(Model.selectedArtists.Contains(artist.ArtistId) ? "checked" : "") />
+                            <label class="form-check-label" for="artists">
+                                @artist.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label for="tags">Tags</label>
-            @Html.ListBoxFor(m => m.selectedTags, tags, new { @class = "form-control", multiple = "multiple" })
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownTags" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select Tags
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownTags">
+                    @foreach (var tag in tags)
+                    {
+                        <div class="form-check dropdown-item">
+                            <input class="form-check-input" type="checkbox" name="selectedTags" value="@tag.TagId" @(Model.selectedTags.Contains(tag.TagId) ? "checked" : "") />
+                            <label class="form-check-label" for="tags">
+                                @tag.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
         <input type="hidden" name="PageNumber" id="PageNumber" value="1" />
 
@@ -47,11 +92,12 @@
 
 <div id="items-container">
     @await Html.PartialAsync("~/Views/Shop/_ItemsListPartialShop.cshtml", Model)
-
 </div>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#filterButtonShop').on('click', function () {
@@ -88,18 +134,32 @@
 }
 
 <style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: #FFFFFF;
+        background-color: #121212;
+        background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/5-dots.png');
+        background-size: auto;
+        background-repeat: repeat;
+        background-attachment: fixed;
+        padding: 20px;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
     #filter-container {
         position: fixed;
         top: 0;
-        right: -300px; /* Width of the filter form */
+        right: -320px; /* Start hidden off-screen */
         width: 300px;
         height: 100%;
-        background-color: #f8f9fa;
+        background-color: #2c2c2c; /* Dark gray background color */
         box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
         transition: right 0.3s ease;
         padding: 20px;
         overflow-y: auto;
         z-index: 1000;
+        color: #FF9800; /* Orange text color */
     }
 
         #filter-container.open {
@@ -108,8 +168,56 @@
 
     #filter-toggle-btn {
         position: fixed;
-        top: 20px;
+        bottom: 20px;
         right: 20px;
         z-index: 1100;
     }
+
+    .form-group label {
+        color: #FF9800;
+    }
+
+    .form-control {
+        color: #000;
+    }
+
+    .dropdown-menu {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .form-check {
+        margin-bottom: 5px;
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+    }
+
+    .form-check-label {
+        color: #FFA726;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+    }
+
+        .pagination .page-link {
+            color: #FFA726;
+            background-color: transparent;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #FFA726;
+            color: white;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #DDDDDD;
+            color: #0056b3;
+        }
 </style>

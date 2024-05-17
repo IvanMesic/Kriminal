@@ -16,11 +16,11 @@ namespace DAL.Model
 
         public bool Sold { get; set; } = false;
 
-        // Foreign keys
+     
         public int ArtistId { get; set; }
         public int CategoryId { get; set; }
 
-        // Navigation properties
+
         [ForeignKey("ArtistId")]
         public virtual Artist Artist { get; set; }
         [ForeignKey("CategoryId")]

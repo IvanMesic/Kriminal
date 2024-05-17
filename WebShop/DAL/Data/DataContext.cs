@@ -37,7 +37,6 @@ namespace DAL.Data
         public DbSet<User> User { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
         public DbSet<TransactionItem> TransactionItem { get; set; }
-        public DbSet<UserBid> UserBid { get; set; }
 
 
         //WRITE SPECIFIC CONSTRAINTS ON TABLES HERE

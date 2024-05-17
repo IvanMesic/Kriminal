@@ -32,7 +32,6 @@ namespace WebShop
             builder.Services.AddScoped<IItemRepository, ItemRepository>();
             builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
             builder.Services.AddScoped<IItemTagRepository, ItemTagRepository>();
-            builder.Services.AddScoped<IUserBidRepository, UserBidRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IArtistTagRepository, ArtistTagRepository>();
             builder.Services.AddScoped<IActionItemRepository, ActionItemRepository>();
@@ -46,8 +45,9 @@ namespace WebShop
             builder.Services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options => {
-                    options.LoginPath = "/auth/login";
-                    //add options.Logout when u remember to implement it!
+                    options.LoginPath = "/Auth/Login"; 
+                    options.LogoutPath = "/Auth/Logout"; 
+                    options.AccessDeniedPath = "/Auth/AccessDenied"; 
                 });
 
             builder.Services.AddAuthorization(options =>

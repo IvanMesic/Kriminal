@@ -1,0 +1,8 @@
+﻿@model IEnumerable<DAL.Model.Bid>
+
+<ul>
+    @foreach (var bid in Model)
+    {
+        <li>@bid.Amount  @bid.User.Username</li>
+    }
+</ul>

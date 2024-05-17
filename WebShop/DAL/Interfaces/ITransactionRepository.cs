@@ -2,6 +2,8 @@
 
 namespace DAL.Interfaces
 {
-    public interface ITransactionRepository : IRepository<Transaction> { }
+    public interface ITransactionRepository : IRepository<Transaction>
+    {
+    }
 
 }

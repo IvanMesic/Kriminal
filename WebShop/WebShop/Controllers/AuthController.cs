@@ -4,10 +4,8 @@ using DAL.Model.DTO;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace WebShop.Controllers
 {
@@ -44,7 +42,7 @@ namespace WebShop.Controllers
             return View();
         }
 
-        [HttpPost("login")]
+        [HttpPost()]
         public IActionResult Login(LoginDTO login)
         {
             if (!ModelState.IsValid)
@@ -76,7 +74,20 @@ namespace WebShop.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 properties).Wait();
 
-            return Redirect("/Home/");
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogoutConfirmed()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]
@@ -107,6 +118,7 @@ namespace WebShop.Controllers
             }
 
             userRepository.Register(model);
+
             return RedirectToAction("Login");
         }
     }

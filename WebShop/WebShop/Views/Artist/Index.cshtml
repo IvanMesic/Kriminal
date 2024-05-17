@@ -1,46 +1,136 @@
 ﻿@model IEnumerable<DAL.Model.Artist>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Artists";
 }
 
-<h1>Index</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ArtistId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImagePath)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ArtistId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-                @Html.DisplayFor(modelItem => item.ImagePath)
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.ArtistId }) |1
-                @Html.ActionLink("Details", "Details", new { id = item.ArtistId }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.ArtistId })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+            color: #FFA726;
+            padding: 0 20px;
+        }
 
+        .container {
+            padding: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .artists-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .artist-card {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 250px;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+            .artist-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .artist-card img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-bottom: 3px solid #FFA726;
+                transition: border-bottom 0.3s ease;
+            }
+
+                .artist-card img:hover {
+                    border-bottom: 3px solid #FF9800;
+                }
+
+        .artist-card-body {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .artist-card-title {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+        }
+
+        .artist-card-actions {
+            margin-top: 10px;
+        }
+
+            .artist-card-actions a {
+                color: #FFA726;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .artist-card-actions a:hover {
+                    color: #FF9800;
+                }
+    </style>
+</head>
+<body>
+    <h1>Artists</h1>
+    <div class="container">
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+        <div class="artists-container">
+            @foreach (var item in Model)
+            {
+                <div class="artist-card">
+                    <a href="@Url.Action("Details", "Artists", new { id = item.ArtistId })">
+                        <img src="@(!string.IsNullOrEmpty(item.ImagePath) ? item.ImagePath : Url.Content("~/images/default-artist.png"))" alt="@item.Name">
+                    </a>
+                    <div class="artist-card-body">
+                        <h3 class="artist-card-title">@Html.DisplayFor(modelItem => item.Name)</h3>
+                        <div class="artist-card-actions">
+                            @Html.ActionLink("Edit", "Edit", new { id = item.ArtistId }) |
+                            @Html.ActionLink("Details", "Details", new { id = item.ArtistId }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.ArtistId })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>

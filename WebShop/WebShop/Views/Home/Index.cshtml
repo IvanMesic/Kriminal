@@ -2,7 +2,30 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center welcome-message">
+    <h1 class="display-4">Welcome to the Art Gallery</h1>
 </div>
+
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: #FFFFFF;
+        background-color: #121212;
+        background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/5-dots.png');
+        background-size: auto;
+        background-repeat: repeat;
+        background-attachment: fixed;
+        padding: 20px;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .welcome-message {
+        margin-top: 20%;
+        color: #CCCCCC; /* Subtle light gray color */
+    }
+
+        .welcome-message .display-4 {
+            font-size: 3.5rem;
+        }
+</style>

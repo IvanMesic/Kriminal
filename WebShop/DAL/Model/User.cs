@@ -22,7 +22,8 @@ namespace DAL.Model
 
         // Navigation properties
         public virtual ICollection<Transaction> Transactions { get; set; }
-        public virtual ICollection<UserBid> UserBids { get; set; }
+
+        public virtual ICollection<Bid> Bids { get; set; }
     }
 
     public enum UserRole

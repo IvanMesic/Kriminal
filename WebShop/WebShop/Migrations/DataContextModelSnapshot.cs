@@ -112,9 +112,14 @@ namespace WebShop.Migrations
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("BidId");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bid");
                 });
@@ -163,6 +168,9 @@ namespace WebShop.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("Sold")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -298,29 +306,6 @@ namespace WebShop.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("DAL.Model.UserBid", b =>
-                {
-                    b.Property<int>("UserBidId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserBidId"));
-
-                    b.Property<int>("BidId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserBidId");
-
-                    b.HasIndex("BidId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserBid");
-                });
-
             modelBuilder.Entity("DAL.Model.ActionItem", b =>
                 {
                     b.HasOne("DAL.Model.Item", "Item")
@@ -359,7 +344,15 @@ namespace WebShop.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DAL.Model.User", "User")
+                        .WithMany("Bids")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Item");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DAL.Model.Item", b =>
@@ -430,35 +423,11 @@ namespace WebShop.Migrations
                     b.Navigation("Transaction");
                 });
 
-            modelBuilder.Entity("DAL.Model.UserBid", b =>
-                {
-                    b.HasOne("DAL.Model.Bid", "Bid")
-                        .WithMany("UserBids")
-                        .HasForeignKey("BidId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DAL.Model.User", "User")
-                        .WithMany("UserBids")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bid");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DAL.Model.Artist", b =>
                 {
                     b.Navigation("ArtistTags");
 
                     b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("DAL.Model.Bid", b =>
-                {
-                    b.Navigation("UserBids");
                 });
 
             modelBuilder.Entity("DAL.Model.Category", b =>
@@ -487,9 +456,9 @@ namespace WebShop.Migrations
 
             modelBuilder.Entity("DAL.Model.User", b =>
                 {
-                    b.Navigation("Transactions");
+                    b.Navigation("Bids");
 
-                    b.Navigation("UserBids");
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

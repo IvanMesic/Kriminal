@@ -1,58 +1,200 @@
 ﻿@model WebShop.Model.ItemListViewModel
 
-<div id="item-list">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.items.First().Title)</th>
-                <th>@Html.DisplayNameFor(model => model.items.First().Price)</th>
-                <th>@Html.DisplayNameFor(model => model.items.First().CreatedAt)</th>
-                <th>@Html.DisplayNameFor(model => model.items.First().ImagePath)</th>
-                <th>Category</th>
-                <th>Artist</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.items)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-                    <td>@Html.DisplayFor(modelItem => item.ImagePath)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Artist.Name)</td>
-                    <td>
-                        @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }) |
-                        @Html.ActionLink("Details", "Details", new { id = item.ItemId }) |
-                        @Html.ActionLink("Delete", "Delete", new { id = item.ItemId })
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item List</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+        }
 
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        @if ((int)Model.pageNumber > 1)
-        {
-            <li class="page-item">
-                <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(Model.pageNumber - 1))">Previous</a>
-            </li>
+        h1, h2, h3 {
+            font-family: 'Merriweather', serif;
         }
-        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
-        {
-            <li class="page-item @(i == Model.pageNumber? "active" : "")">
-                <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(i))">@i</a>
-            </li>
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
         }
-        @if ((int)Model.pageNumber < (int)ViewBag.TotalPages)
-        {
-            <li class="page-item">
-                <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(Model.pageNumber + 1))">Next</a>
-            </li>
+
+        .card {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 350px;
+            transition: transform 0.3s ease;
         }
-    </ul>
-</nav>
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+            .card img {
+                width: 100%;
+                height: 250px;
+                object-fit: cover;
+                border-bottom: 3px solid #FFA726;
+                transition: border-bottom 0.3s ease;
+            }
+
+                .card img:hover {
+                    border-bottom: 3px solid #FF9800;
+                }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+        }
+
+        .card-subtitle {
+            font-size: 1em;
+            color: #AAAAAA;
+            margin-bottom: 10px;
+        }
+
+        .card-text {
+            color: #CCCCCC;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .btn-secondary {
+            background: linear-gradient(#4E4E4E, #3C3C3C);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+
+            .btn-secondary:hover {
+                background: linear-gradient(#3C3C3C, #4E4E4E);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .btn-danger {
+            background: linear-gradient(#FF5733, #C70039);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+
+            .btn-danger:hover {
+                background: linear-gradient(#C70039, #FF5733);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+            .pagination .page-link {
+                color: #FFA726;
+                background-color: transparent;
+                border: none;
+                transition: all 0.3s ease;
+            }
+
+            .pagination .page-item.active .page-link {
+                background-color: #FFA726;
+                color: white;
+            }
+
+            .pagination .page-link:hover {
+                background-color: #DDDDDD;
+                color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        @foreach (var item in Model.items)
+        {
+            <div class="card">
+                <img src="@item.ImagePath" alt="@item.Title">
+                <div class="card-body">
+                    <h3 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h3>
+                    <h4 class="card-subtitle">@Html.DisplayFor(modelItem => item.Artist.Name)</h4>
+                    <div class="btn-group" role="group">
+                        @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("Details", "Details", new { id = item.ItemId }, new { @class = "btn btn-secondary" })
+                        @Html.ActionLink("Delete", "Delete", new { id = item.ItemId }, new { @class = "btn btn-danger" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div style="text-align:center; margin-top: 20px;">
+        @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
+    </div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @if ((int)Model.pageNumber > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(Model.pageNumber - 1))">Previous</a>
+                </li>
+            }
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.pageNumber ? "active" : "")">
+                    <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(i))">@i</a>
+                </li>
+            }
+            @if ((int)Model.pageNumber < (int)ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(Model.pageNumber + 1))">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</body>
+</html>
