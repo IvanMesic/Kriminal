@@ -25,6 +25,11 @@ public class ItemRepository : Repository<Item>, IItemRepository
             .ToList();
     }
 
+    public IList<Item> GetAllApi()
+    {
+        return _context.Item.ToList();
+    }
+
     public override Item GetById(int id)
     {
         return _context.Item

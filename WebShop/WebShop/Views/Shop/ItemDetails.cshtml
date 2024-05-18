@@ -166,7 +166,7 @@
                 }
                 <form id="placeBidForm" method="post" style="display:inline;">
                     <input type="hidden" name="itemId" value="@Model.ItemId" />
-                    <input type="number" name="bid" value="1" min="1" max="@Model.Price" class="quantity-input" @(Model.Sold ? "disabled" : "") />
+                    <input type="number" name="bid" value="@Model.Price * 0.6" min="@Model.Price * 0.6" max="@Model.Price" class="quantity-input" @(Model.Sold ? "disabled" : "") />
                     <input type="submit" value="Place Bid" class="btn btn-primary" @(Model.Sold ? "disabled" : "") />
                 </form>
                 <div class="bids-list" id="bidsList">

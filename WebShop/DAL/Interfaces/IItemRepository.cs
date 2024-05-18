@@ -1,4 +1,5 @@
 ﻿using DAL.Model;
+using Microsoft.AspNetCore.Http.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,12 @@ namespace DAL.Interfaces
      decimal? priceMin = 0,
      decimal? priceMax = null,
      string? searchQuery = null);
+
+        public IList<Item> GetAllApi();
+
+
     }
-    
+
+
 
 }

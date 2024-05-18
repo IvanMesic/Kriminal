@@ -64,13 +64,20 @@ namespace WebShop.Controllers
 
         }
 
-        public ActionResult TimeoutBid(int itemId)
+
+        public ActionResult TimeoutBid(int id)
         {
+
+
             
-            Bid bid = _bidRepository.GetHighestBidForItem(itemId);
+            Bid bid = _bidRepository.GetHighestBidForItem(id);
 
-            Item item = _itemRepository.GetById(itemId);
+            Item item = _itemRepository.GetById(id);
 
+            if (bid.Amount==null || bid.Amount == 0)
+            {
+                return Ok();
+            }
 
                 item.Sold = true;
                 _itemRepository.Update(item);
@@ -95,15 +102,13 @@ namespace WebShop.Controllers
                 return Ok();
         }
 
-        
-
         [HttpPost]
         public JsonResult PlaceBid(int bid, int itemId)
         {
             var highestBid = _bidRepository.GetHighestBidForItem(itemId);
             var item = _itemRepository.GetById(itemId);
 
-            if (bid <= highestBid.Amount)
+            if (bid <= highestBid.Amount || bid <= (int)((double)item.Price * 0.6))
             {
                 return Json(new { success = false, message = "Bid too low" });
             }
