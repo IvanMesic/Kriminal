@@ -5,6 +5,7 @@ using DAL.ServiceInterfaces;
 using DAL.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebShop.Mapping;
@@ -65,6 +66,8 @@ namespace WebShop
             });
 
             var app = builder.Build();
+
+            app.UseStaticFiles();
 
             if (!app.Environment.IsDevelopment())
             {

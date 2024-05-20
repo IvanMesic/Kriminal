@@ -36,6 +36,23 @@ namespace WebShop.Controllers
             _mapper = mapper;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "No file selected." });
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/static-files", file.FileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var relativePath = "/static-files/" + file.FileName;
+            return Json(new { success = true, filePath = relativePath });
+        }
+
         public ActionResult Index(ItemListViewModel itemListViewModel)
         {
             int pageSize = 10;

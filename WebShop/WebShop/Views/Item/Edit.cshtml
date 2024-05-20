@@ -4,7 +4,6 @@
 @inject DAL.Interfaces.ITagRepository tagRepository
 @inject DAL.Interfaces.IItemTagRepository ItemTagRepository
 
-
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -49,9 +48,16 @@
                 <span asp-validation-for="item.CreatedAt" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="item.ExpirationDate" class="control-label"></label>
+                <input asp-for="item.ExpirationDate" type="date" class="form-control" />
+                <span asp-validation-for="item.ExpirationDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="item.ImagePath" class="control-label">Image Path</label>
                 <input asp-for="item.ImagePath" id="imagePath" class="form-control" />
                 <span asp-validation-for="item.ImagePath" class="text-danger"></span>
+                <input type="file" id="imageUpload" style="margin-top: 10px;" />
+                <button type="button" id="uploadButton" class="btn btn-primary" style="margin-top: 10px;">Upload</button>
             </div>
 
             <div class="form-group" id="imagePreview" style="margin-top:20px;margin-bottom:20px; display: none;">
@@ -97,44 +103,24 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        <script>
-            $(document).ready(function () {
-                // Show image preview when document is ready
-                $('#imagePath').trigger('change');
+    }
+    <script>
+        $(document).ready(function () {
+            // Handle tag adding/removal
+            $('#addTagBtn').click(function () {
+                var newTagGroup = $('.tag-group').first().clone();
+                newTagGroup.find('.tag-dropdown').val('');
+                $('#tagsContainer').append(newTagGroup);
+                $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+            });
 
-                // Add tag lists based on tagIds length
-                var tagIdsLength = @Model.tagIds.Count;
-                for (var i = 0; i < tagIdsLength - 1; i++) {
-                    addTagList();
-                }
-
-                // Set the values of tag lists based on tagIds
-                var tagIds = @Html.Raw(Json.Serialize(Model.tagIds));
-                $('.tag-dropdown').each(function (index) {
-                    $(this).val(tagIds[index]);
-                });
-
-                $('#addTagBtn').click(function () {
-                    addTagList();
-                });
-
-                $(document).on('click', '.remove-tag', function () {
-                    $(this).closest('.tag-group').remove();
-                    if ($('.tag-group').length === 1) {
-                        $('.remove-tag').hide(); // Hide remove button if only one tag dropdown remains
-                    }
-                });
-
-                // Function to add a new tag list
-                function addTagList() {
-                    var newTagGroup = $('.tag-group').first().clone();
-                    newTagGroup.find('.tag-dropdown').val('');
-                    $('#tagsContainer').append(newTagGroup);
-                    $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+            $(document).on('click', '.remove-tag', function () {
+                $(this).closest('.tag-group').remove();
+                if ($('.tag-group').length === 1) {
+                    $('.remove-tag').hide(); // Hide remove button if only one tag dropdown remains
                 }
             });
-        </script>
-        <script>
+
             // Show image preview when image path is changed
             $('#imagePath').change(function () {
                 var imagePath = $(this).val();
@@ -145,6 +131,61 @@
                     $('#imagePreview').hide();
                 }
             });
-        </script>
-    }
+
+            // Handle file upload
+            $('#uploadButton').click(function () {
+                var formData = new FormData();
+                var fileInput = $('#imageUpload')[0];
+                if (fileInput.files.length === 0) {
+                    alert("Please select a file to upload.");
+                    return;
+                }
+
+                formData.append('file', fileInput.files[0]);
+
+                $.ajax({
+                    url: '@Url.Action("UploadImage")',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#imagePath').val(response.filePath);
+                            $('#imgPreview').attr('src', response.filePath);
+                            $('#imagePreview').show();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("File upload failed. Please try again.");
+                    }
+                });
+            });
+
+            // Trigger change to show the current image path's preview when the page loads
+            $('#imagePath').trigger('change');
+
+            // Add tag lists based on tagIds length
+            var tagIdsLength = @Model.tagIds.Count;
+            for (var i = 0; i < tagIdsLength - 1; i++) {
+                addTagList();
+            }
+
+            // Set the values of tag lists based on tagIds
+            var tagIds = @Html.Raw(Json.Serialize(Model.tagIds));
+            $('.tag-dropdown').each(function (index) {
+                $(this).val(tagIds[index]);
+            });
+
+            // Function to add a new tag list
+            function addTagList() {
+                var newTagGroup = $('.tag-group').first().clone();
+                newTagGroup.find('.tag-dropdown').val('');
+                $('#tagsContainer').append(newTagGroup);
+                $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+            }
+        });
+    </script>
 }
