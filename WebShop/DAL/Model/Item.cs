@@ -14,6 +14,7 @@ namespace DAL.Model
         public DateTime CreatedAt { get; set; }
         public string ImagePath { get; set; }
         public int? OwnerId { get; set; }
+        public decimal? SaleMultiplier { get; set; } = 1;
 
         [ForeignKey("OwnerId")]
         public virtual User? Owner { get; set; }

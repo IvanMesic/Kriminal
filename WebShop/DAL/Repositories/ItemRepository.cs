@@ -105,5 +105,10 @@ public class ItemRepository : Repository<Item>, IItemRepository
                 .Include(i => i.Owner).ToList();
     }
 
+    public IEnumerable<Item> GetAllItemsForUser(int userId)
+    {
+        return _context.Item.Where(i => i.OwnerId == userId);
+    }
+
 
 }

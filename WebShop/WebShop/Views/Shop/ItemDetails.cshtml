@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Details";
+    var expirationDate = Model.ExpirationDate.HasValue ? Model.ExpirationDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : "";
 }
 
 <!DOCTYPE html>
@@ -129,6 +130,13 @@
             .bids-list li:last-child {
                 border-bottom: none;
             }
+
+        .countdown {
+            font-size: 1.5em;
+            color: #FFA726;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +162,7 @@
                     <dt>@Html.DisplayNameFor(model => model.Owner)</dt>
                     <dd>@Html.DisplayFor(model => model.Owner.Username)</dd>
                 </dl>
+                <div id="countdown" class="countdown"></div>
             </div>
         </div>
         <div class="right-column">
@@ -166,7 +175,7 @@
                 }
                 <form id="placeBidForm" method="post" style="display:inline;">
                     <input type="hidden" name="itemId" value="@Model.ItemId" />
-                    <input type="number" name="bid" value="@Model.Price * 0.6" min="@Model.Price * 0.6" max="@Model.Price" class="quantity-input" @(Model.Sold ? "disabled" : "") />
+                    <input type="number" name="bid" value="@Model.Price * 0.6" min="@Model.Price * 0.6" max="@Model.Price * @Model.SaleMultiplier" class="quantity-input" @(Model.Sold ? "disabled" : "") />
                     <input type="submit" value="Place Bid" class="btn btn-primary" @(Model.Sold ? "disabled" : "") />
                 </form>
                 <div class="bids-list" id="bidsList">
@@ -230,6 +239,33 @@
             }
 
             setInterval(updateBidsList, 1000);
+
+
+            function updateCountdown() {
+                const expirationDate = new Date('@expirationDate');
+                if (isNaN(expirationDate)) {
+                    document.getElementById('countdown').innerHTML = 'No Expiration Date';
+                    return;
+                }
+
+                const now = new Date();
+                const timeLeft = expirationDate - now;
+
+                if (timeLeft <= 0) {
+                    document.getElementById('countdown').innerHTML = 'Auction Finished';
+                    return;
+                }
+
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown').innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
         </script>
     }
 </body>

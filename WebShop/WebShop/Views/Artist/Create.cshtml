@@ -2,98 +2,200 @@
 
 @inject DAL.Interfaces.ITagRepository tagRepository
 
-
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    
+
     var tagItems = tagRepository.GetAll();
     var tagList = new MultiSelectList(tagItems, "TagId", "Name");
 }
 
-<h1>Create Item</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Artist</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="artist.Name" class="control-label"></label>
-                <input asp-for="artist.Name" class="form-control" />
-                <span asp-validation-for="artist.Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="artist.Bio" class="control-label"></label>
-                <input asp-for="artist.Bio" class="form-control" />
-                <span asp-validation-for="artist.Bio" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="artist.ImagePath" class="control-label">Image Path</label>
-                <input asp-for="artist.ImagePath" id="imagePath" class="form-control" />
-                <span asp-validation-for="artist.ImagePath" class="text-danger"></span>
-            </div>
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+            color: #FFA726;
+            text-align: center;
+        }
 
-            <div class="form-group" id="imagePreview" style="margin-top:20px;margin-bottom:20px; display: none;">
-                <label>Image Preview:</label>
-                <img id="imgPreview" src="#" alt="Preview" style="max-width: 100%; max-height: 200px;" />
-            </div>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
 
-            <div id="tagsContainer" style="margin-top: 20px;">
-                <label asp-for="artist.ArtistTags" class="control-label">Tags</label>
+        .form-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
-                <div class="form-group tag-group">
-                    <div class="input-group">
-                        @Html.DropDownListFor(m => m.tagIds, tagList, new { @class = "form-control tag-dropdown" })
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-danger remove-tag" style="margin-left: 5px; display: none;">-</button>
+        .form-group label {
+            font-weight: bold;
+            color: #FFA726;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #FFF;
+            margin-bottom: 10px;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+            .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+                border-color: #FFA726;
+                outline: none;
+                box-shadow: 0 0 8px rgba(255, 152, 0, 0.2);
+            }
+
+        .btn-primary {
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .text-danger {
+            color: #FF9800;
+        }
+
+        .form-group .input-group-append .btn-danger {
+            background-color: #FF5252;
+            border: none;
+        }
+
+            .form-group .input-group-append .btn-danger:hover {
+                background-color: #FF1744;
+            }
+
+        .form-group .btn-success {
+            margin-top: 10px;
+        }
+
+        .form-group .input-group-append .remove-tag {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Artist</h1>
+    <div class="container">
+        <div class="form-container">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="artist.Name" class="control-label"></label>
+                    <input asp-for="artist.Name" class="form-control" />
+                    <span asp-validation-for="artist.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="artist.Bio" class="control-label"></label>
+                    <textarea asp-for="artist.Bio" class="form-control"></textarea>
+                    <span asp-validation-for="artist.Bio" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="artist.ImagePath" class="control-label">Image Path</label>
+                    <input asp-for="artist.ImagePath" id="imagePath" class="form-control" />
+                    <span asp-validation-for="artist.ImagePath" class="text-danger"></span>
+                </div>
+                <div class="form-group" id="imagePreview" style="margin-top:20px;margin-bottom:20px; display: none;">
+                    <label>Image Preview:</label>
+                    <img id="imgPreview" src="#" alt="Preview" style="max-width: 100%; max-height: 200px;" />
+                </div>
+                <div id="tagsContainer" style="margin-top: 20px;">
+                    <label asp-for="artist.ArtistTags" class="control-label">Tags</label>
+                    <div class="form-group tag-group">
+                        <div class="input-group">
+                            @Html.DropDownListFor(m => m.tagIds, tagList, new { @class = "form-control tag-dropdown" })
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-danger remove-tag" style="margin-left: 5px;">-</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <button type="button" id="addTagBtn" class="btn btn-success mt-2">Add Tag</button>
-
-            <div class="form-group">
-                <input type="submit" value="Create" style="margin-top: 20px;" class="btn btn-primary" />
-            </div>
-        </form>
+                <button type="button" id="addTagBtn" class="btn btn-success">Add Tag</button>
+                <div class="form-group">
+                    <input type="submit" value="Create" style="margin-top: 20px;" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+    <div style="text-align:center; margin-top: 20px;">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
         <script>
             $(document).ready(function () {
+                // Handle tag adding/removal
                 $('#addTagBtn').click(function () {
                     var newTagGroup = $('.tag-group').first().clone();
                     newTagGroup.find('.tag-dropdown').val('');
                     $('#tagsContainer').append(newTagGroup);
-                    $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
+                    $('.remove-tag').show();
                 });
 
                 $(document).on('click', '.remove-tag', function () {
                     $(this).closest('.tag-group').remove();
                     if ($('.tag-group').length === 1) {
-                        $('.remove-tag').hide(); // Hide remove button if only one tag dropdown remains
+                        $('.remove-tag').hide();
+                    }
+                });
+
+                // Show image preview when image path is changed
+                $('#imagePath').change(function () {
+                    var imagePath = $(this).val();
+                    if (imagePath) {
+                        $('#imgPreview').attr('src', imagePath);
+                        $('#imagePreview').show();
+                    } else {
+                        $('#imagePreview').hide();
                     }
                 });
             });
         </script>
-        <script>
-            // Show image preview when image path is changed
-            $('#imagePath').change(function () {
-                var imagePath = $(this).val();
-                if (imagePath) {
-                    $('#imgPreview').attr('src', imagePath);
-                    $('#imagePreview').show();
-                } else {
-                    $('#imagePreview').hide();
-                }
-            });
-        </script>
     }
-}
+</body>
+</html>

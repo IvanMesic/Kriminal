@@ -4,55 +4,193 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Details</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-<div>
-    <h4>Artist</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ArtistId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ArtistId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Bio)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Bio)
-        </dd>
-        <dt class="col-sm-2">
-            Tags
-        </dt>
-        <dd class="col-sm-10">
-            <ul>
-                @foreach (var itemTag in Model.ArtistTags)
-                {
-                    <li>@itemTag.Tag.Name</li>
+        h1, h2, h3, h4 {
+            font-family: 'Merriweather', serif;
+            color: #FFA726;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .details-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+            .details-container dt {
+                font-weight: bold;
+                color: #FFA726;
+            }
+
+            .details-container dd {
+                margin-bottom: 10px;
+                color: #CCCCCC;
+            }
+
+            .details-container img {
+                max-width: 100%;
+                height: auto;
+                border-bottom: 3px solid #FFA726;
+                margin-bottom: 20px;
+            }
+
+        .btn-primary {
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .text-danger {
+            color: #FF9800;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .works-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+            .works-container ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            .works-container li {
+                margin-bottom: 20px;
+                display: inline-block;
+                text-align: center;
+                width: 45%;
+                margin: 10px;
+            }
+
+            .works-container img {
+                max-width: 150px;
+                height: auto;
+                display: block;
+                margin: 0 auto 10px auto;
+                cursor: pointer;
+                transition: transform 0.3s;
+            }
+
+                .works-container img:hover {
+                    transform: scale(1.05);
                 }
-            </ul>
-        </dd>
-        <dt class="col-sm-2">
-            Works
-        </dt>
-        <dd class="col-sm-10">
+    </style>
+</head>
+<body>
+    <h1>Artist Details</h1>
+    <div class="container">
+        <div class="details-container">
+            <h4>Artist</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.ArtistId)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.ArtistId)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Bio)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Bio)
+                </dd>
+                <dt class="col-sm-2">
+                    Image
+                </dt>
+                <dd class="col-sm-10">
+                    <img src="@Model.ImagePath" alt="Artist Image" />
+                </dd>
+                <dt class="col-sm-2">
+                    Tags
+                </dt>
+                <dd class="col-sm-10">
+                    <ul>
+                        @foreach (var itemTag in Model.ArtistTags)
+                        {
+                            <li>@itemTag.Tag.Name</li>
+                        }
+                    </ul>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="container">
+        <div class="works-container">
+            <h4>Related Works</h4>
             <ul>
                 @foreach (var item in Model.Items)
                 {
-                    <li>@item.Title</li>
+                    <li>
+                        <a href="@Url.Action("ItemDetails", "Shop", new { id = item.ItemId })">
+                            <img src="@item.ImagePath" alt="Item Image" />
+                            <span>@item.Title</span>
+                        </a>
+                    </li>
                 }
             </ul>
-        </dd>
-    </dl>
-</div>
-<div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ArtistId }) |
-    <a asp-action="Index">Back to List</a>
-</div>
+        </div>
+    </div>
+    <div class="back-link">
+        @Html.ActionLink("Edit", "Edit", new { id = Model.ArtistId }, new { @class = "btn btn-primary" }) |
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</body>
+</html>

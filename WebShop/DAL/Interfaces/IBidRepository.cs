@@ -11,6 +11,7 @@ namespace DAL.Interfaces
     {
         public IList<Bid> GetAllBidsForItem(int itemId);
         public Bid GetHighestBidForItem(int itemId);
+        IEnumerable<Bid> GetHighestBidsForUser(int userId);
     }
 
 }

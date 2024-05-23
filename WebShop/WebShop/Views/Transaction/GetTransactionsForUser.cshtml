@@ -1,0 +1,65 @@
+﻿@model IEnumerable<DAL.Model.Transaction>
+
+@{
+    ViewData["Title"] = "GetTransactionsForUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>GetTransactionsForUser</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TransactionId)
+            </th>
+            <th>
+                Transaction Items
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.Username)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                    @foreach (var transactionItem in item.TransactionItems)
+                    {
+                        <div class="item-card">
+                            <a href="@Url.Action("ItemDetails", "Shop", new { id = transactionItem.Item.ItemId })">
+                                <img src="@transactionItem.Item.ImagePath" alt="@transactionItem.Item.Title">
+                            </a>
+                            <div class="item-card-body">
+                                <h3 class="item-card-title">@Html.DisplayFor(modelItem => transactionItem.Item.Title)</h3>
+                                <h4 class="item-card-subtitle">@Html.DisplayFor(modelItem => transactionItem.Item.Artist.Name)</h4>
+                                <p class="item-card-text">Price: @string.Format("{0:n0} $", transactionItem.Item.Price)</p>
+                            </div>
+                        </div>
+                    }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.Username)
+            </td>
+
+        </tr>
+}
+    </tbody>
+</table>

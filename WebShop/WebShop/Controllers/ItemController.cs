@@ -2,6 +2,8 @@
 using DAL.Interfaces;
 using DAL.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Security.Claims;
 using WebShop.Model;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -15,6 +17,7 @@ namespace WebShop.Controllers
         private readonly IItemTagRepository _itemTagRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IArtistRepository _artistRepository;
+        private readonly IBidRepository _bidRepository;
 
         private readonly IMapper _mapper;
 
@@ -23,8 +26,9 @@ namespace WebShop.Controllers
             ITagRepository tagRepository,
             IItemTagRepository itemTagRepository,
             IMapper mapper, 
-            ICategoryRepository categoryRepository, 
-            IArtistRepository artistRepository)
+            ICategoryRepository categoryRepository,
+            IArtistRepository artistRepository,
+            IBidRepository bidRepository)
         {
             _itemRepository = itemRepository;
 
@@ -34,6 +38,7 @@ namespace WebShop.Controllers
             _artistRepository = artistRepository;
 
             _mapper = mapper;
+            _bidRepository = bidRepository;
         }
 
         [HttpPost]
@@ -192,7 +197,28 @@ namespace WebShop.Controllers
             _itemRepository.Delete(item);
             return RedirectToAction(nameof(Index));
         }
+
+
+        public ActionResult GetItemsForUser()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            List<Item> items = _itemRepository.GetAllItemsForUser(int.Parse(userId)).ToList();
+
+            return View(items);
+        }
+
+        public ActionResult GetUserBids()
+        {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var bids = _bidRepository.GetHighestBidsForUser(int.Parse(userId));
+
+            return View(bids);
+        }
     }
+
 }
 
     public static class HttpRequestExtensions

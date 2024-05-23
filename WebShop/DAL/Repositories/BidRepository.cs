@@ -46,4 +46,18 @@ public class BidRepository : Repository<Bid>, IBidRepository
 
         return GetAll().Where(b => b.ItemId == itemId).OrderBy(b => b.Amount).Reverse().First();
     }
+
+    public IEnumerable<Bid> GetHighestBidsForUser(int userId)
+    {
+        var highestBids = _context.Bid
+            .Include(u => u.User)
+            .Include(u => u.Item)
+            .Where(b => b.UserId == userId)
+            .GroupBy(b => b.ItemId)
+            .Select(g => g.OrderByDescending(b => b.Amount).First())
+            .ToList();
+
+        return highestBids;
+    }
+
 }

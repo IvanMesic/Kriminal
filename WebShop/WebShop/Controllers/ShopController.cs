@@ -3,10 +3,14 @@ using DAL.Interfaces;
 using DAL.Model;
 using DAL.Repositories;
 using DAL.ServiceInterfaces;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing.Printing;
 using System.Net;
 using System.Security.Claims;
+using System.Xml.Linq;
 using WebShop.Model;
 
 namespace WebShop.Controllers
@@ -171,6 +175,60 @@ namespace WebShop.Controllers
             return PartialView("_BidsList", bids);
         }
 
+        [HttpGet]
+        public ActionResult PrintAllItemsToPdf()
+        {
+            List<Item> items = _itemRepository.GetAll().ToList();
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                Document document = new Document(PageSize.A4, 25, 25, 30, 30);
+                PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
+                document.Open();
+
+                // Add a title
+                Font titleFont = FontFactory.GetFont("Arial", 18, Font.BOLD);
+                Paragraph title = new Paragraph("Items List", titleFont)
+                {
+                    Alignment = Element.ALIGN_CENTER,
+                    SpacingAfter = 20f
+                };
+                document.Add(title);
+
+                // Add a table
+                PdfPTable table = new PdfPTable(6) { WidthPercentage = 100 };
+                table.SetWidths(new float[] { 10f, 20f, 40f, 10f, 10f, 10f });
+
+                // Add table headers
+                Font headerFont = FontFactory.GetFont("Arial", 12, Font.BOLD);
+                table.AddCell(new PdfPCell(new Phrase("ID", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("Title", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("Description", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("Price", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("Created At", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("Owner", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+
+                // Add table rows
+                Font rowFont = FontFactory.GetFont("Arial", 10, Font.NORMAL);
+                foreach (var item in items)
+                {
+                    table.AddCell(new PdfPCell(new Phrase(item.ItemId.ToString(), rowFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                    table.AddCell(new PdfPCell(new Phrase(item.Title, rowFont)) { HorizontalAlignment = Element.ALIGN_LEFT });
+                    table.AddCell(new PdfPCell(new Phrase(item.Description ?? "", rowFont)) { HorizontalAlignment = Element.ALIGN_LEFT });
+                    table.AddCell(new PdfPCell(new Phrase(item.Price.ToString("C"), rowFont)) { HorizontalAlignment = Element.ALIGN_RIGHT });
+                    table.AddCell(new PdfPCell(new Phrase(item.CreatedAt.ToString("dd-MM-yyyy"), rowFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                    table.AddCell(new PdfPCell(new Phrase(item.Owner?.Username ?? "N/A", rowFont)) { HorizontalAlignment = Element.ALIGN_LEFT });
+                }
+
+                document.Add(table);
+                document.Close();
+
+                byte[] bytes = memoryStream.ToArray();
+                memoryStream.Close();
+
+                return File(bytes, "application/pdf", "ItemsList.pdf");
+            }
+        }
 
         [HttpGet]
         public ActionResult ItemDetails(int id)

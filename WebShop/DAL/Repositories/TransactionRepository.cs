@@ -19,5 +19,11 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                     .ThenInclude(ti => ti.Item)
             .Include(a => a.User).FirstOrDefault(a => a.TransactionId == id);
     }
+
+    public IEnumerable<Transaction> GetTransactionsForUser(int id) 
+    {
+        return _context.Transaction.Include(t=>t.User).Include(a => a.TransactionItems).ThenInclude(a=>a.Item).Where(u => u.UserId == id);
+    }
+
 }
 

@@ -20,7 +20,7 @@ namespace DAL.Interfaces
 
         public IList<Item> GetAllApi();
 
-
+        IEnumerable<Item> GetAllItemsForUser(int userId);
     }
 
 
