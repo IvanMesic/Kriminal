@@ -1,65 +1,169 @@
 ﻿@model IEnumerable<DAL.Model.Transaction>
 
 @{
-    ViewData["Title"] = "GetTransactionsForUser";
+    ViewData["Title"] = "My Transactions";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>GetTransactionsForUser</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+        }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TransactionId)
-            </th>
-            <th>
-                Transaction Items
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User.Username)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TransactionId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                    @foreach (var transactionItem in item.TransactionItems)
-                    {
-                        <div class="item-card">
-                            <a href="@Url.Action("ItemDetails", "Shop", new { id = transactionItem.Item.ItemId })">
-                                <img src="@transactionItem.Item.ImagePath" alt="@transactionItem.Item.Title">
-                            </a>
-                            <div class="item-card-body">
-                                <h3 class="item-card-title">@Html.DisplayFor(modelItem => transactionItem.Item.Title)</h3>
-                                <h4 class="item-card-subtitle">@Html.DisplayFor(modelItem => transactionItem.Item.Artist.Name)</h4>
-                                <p class="item-card-text">Price: @string.Format("{0:n0} $", transactionItem.Item.Price)</p>
-                            </div>
-                        </div>
-                    }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Username)
-            </td>
+        h1, h2, h3 {
+            font-family: 'Merriweather', serif;
+        }
 
-        </tr>
-}
-    </tbody>
-</table>
+        .table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+            .table th, .table td {
+                border: 1px solid #444;
+                padding: 10px;
+                text-align: left;
+                color: #FFFFFF;
+            }
+
+            .table th {
+                background-color: #1E1E1E;
+                color: #FFA726;
+            }
+
+            .table td {
+                background-color: #2E2E2E;
+            }
+
+        .item-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+            .item-card a {
+                display: block;
+                width: 100px;
+                height: 100px;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+
+            .item-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+
+                .item-card img:hover {
+                    transform: scale(1.1);
+                }
+
+        .item-card-body {
+            padding: 15px;
+            color: #FFFFFF;
+        }
+
+        .item-card-title {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .item-card-subtitle {
+            font-size: 1em;
+            color: #AAAAAA;
+            margin-bottom: 10px;
+        }
+
+        .item-card-text {
+            color: #CCCCCC;
+        }
+
+        .btn {
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+
+            .btn:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .btn:disabled {
+                background: #AAA;
+                cursor: not-allowed;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Transactions</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Transaction Items
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Date)
+                    </th>
+                    <th>
+                        Total Amount With Sale
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @foreach (var transactionItem in item.TransactionItems)
+                            {
+                                <div class="item-card">
+                                    <a href="@Url.Action("ItemDetails", "Shop", new { id = transactionItem.Item.ItemId })">
+                                        <img src="@transactionItem.Item.ImagePath" alt="@transactionItem.Item.Title">
+                                    </a>
+                                    <div class="item-card-body">
+                                        <h3 class="item-card-title">@Html.DisplayFor(modelItem => transactionItem.Item.Title)</h3>
+                                        <h4 class="item-card-subtitle">@Html.DisplayFor(modelItem => transactionItem.Item.Artist.Name)</h4>
+                                        <p class="item-card-text">Price: @string.Format("{0:n0} $", transactionItem.Item.Price)</p>
+                                    </div>
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Date)
+                        </td>
+                        <td>
+                            @string.Format("{0:n0} $", item.TotalAmount)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

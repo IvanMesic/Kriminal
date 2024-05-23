@@ -139,7 +139,6 @@
                     <h4 class="card-subtitle">@Html.DisplayFor(modelItem => item.Artist.Name)</h4>
                     <div class="btn-group" role="group">
                         @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }, new { @class = "btn btn-primary" })
-                        @Html.ActionLink("Details", "Details", new { id = item.ItemId }, new { @class = "btn btn-secondary" })
                         @Html.ActionLink("Delete", "Delete", new { id = item.ItemId }, new { @class = "btn btn-danger" })
                     </div>
                 </div>
