@@ -36,10 +36,10 @@ namespace DAL.Services
             return cart;
         }
 
-        public void AddItem(int itemId, string name, decimal price, int quantity)
+        public void AddItem(int itemId, string name, decimal price, int quantity, decimal multiplier)
         {
             var cart = GetCart();
-            cart.AddItem(itemId, name, price, quantity);
+            cart.AddItem(itemId, name, price, quantity, multiplier);
             SetCart(cart);
         }
 
@@ -60,7 +60,7 @@ namespace DAL.Services
         public decimal GetTotal()
         {
             var cart = GetCart();
-            return cart.Total;
+            return cart.Total();
         }
 
         private void SetCart(Cart cart)

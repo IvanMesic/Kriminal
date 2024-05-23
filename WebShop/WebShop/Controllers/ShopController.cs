@@ -63,7 +63,8 @@ namespace WebShop.Controllers
                 return NotFound();
             }
 
-            _cartService.AddItem(item.ItemId, item.Title, item.Price, quantity);
+            _cartService.AddItem(item.ItemId, item.Title, item.Price, quantity, item.SaleMultiplier ?? 1m);
+
             return RedirectToAction(nameof(Index));
 
         }
@@ -140,7 +141,9 @@ namespace WebShop.Controllers
 
             _bidRepository.Add(tempBid);
 
-            if (bid >= item.Price)
+            var x = item.SaleMultiplier ?? 1;
+
+            if (bid >= item.Price * x)
             {
                 item.Sold = true;
                 _itemRepository.Update(item);

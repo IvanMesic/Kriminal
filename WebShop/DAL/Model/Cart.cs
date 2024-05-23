@@ -16,13 +16,13 @@ namespace DAL.Model
             set => items = value.ToList(); 
         }
 
-        public void AddItem(int itemId, string name, decimal price, int quantity)
+        public void AddItem(int itemId, string name, decimal price, int quantity, decimal multiplier)
         {
             var existingItem = items.FirstOrDefault(i => i.ItemId == itemId);
 
             if (existingItem == null)
             {
-                items.Add(new CartItem { ItemId = itemId, Name = name, Price = price, Quantity = quantity });
+                items.Add(new CartItem { ItemId = itemId, Name = name, Price = price, Quantity = quantity, SaleMultiplier =  multiplier});
             }
             else
             {
@@ -37,6 +37,22 @@ namespace DAL.Model
 
         public void Clear() => items.Clear();
 
-        public decimal Total => items.Sum(i => i.Total);
+        public decimal Total()
+        {
+            decimal x = 1;
+
+            decimal total = 0;
+
+            foreach (var item in items)
+            {
+                if (item.SaleMultiplier == null)
+                {
+                    item.SaleMultiplier = x;
+                }
+                total += item.Total * item.SaleMultiplier;
+            }
+
+            return total;
+        }
     }
 }

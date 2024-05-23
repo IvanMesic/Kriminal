@@ -10,7 +10,7 @@ namespace DAL.ServiceInterfaces
     public interface ICartService
     {
         Cart GetCart();
-        void AddItem(int itemId, string name, decimal price, int quantity);
+        void AddItem(int itemId, string name, decimal price, int quantity, decimal multiplier);
         void RemoveItem(int itemId);
         void ClearCart();
         decimal GetTotal();

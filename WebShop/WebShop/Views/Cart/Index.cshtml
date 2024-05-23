@@ -42,7 +42,7 @@ else
         </tbody>
     </table>
 
-    <h3>Total: @Model.Total.ToString("C")</h3>
+    <h3>Total: @Model.Total().ToString("C")</h3>
 
     <form asp-action="Clear" method="post">
         <input type="submit" value="Clear Cart" class="btn btn-warning" />

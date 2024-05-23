@@ -36,7 +36,7 @@ namespace WebShop.Services
             {
                 UserId = userId,
                 Date = DateTime.Now,
-                TotalAmount = cart.Total,
+                TotalAmount = cart.Total(),
                 TransactionItems = cart.Items.Select(i => new TransactionItem
                 {
                     ItemId = i.ItemId
