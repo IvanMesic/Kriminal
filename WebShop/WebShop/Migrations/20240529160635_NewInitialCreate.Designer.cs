@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebShop.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240517145035_bidModelFixAndItem")]
-    partial class bidModelFixAndItem
+    [Migration("20240529160635_NewInitialCreate")]
+    partial class NewInitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -109,9 +109,6 @@ namespace WebShop.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("ItemId")
                         .HasColumnType("int");
 
@@ -168,14 +165,20 @@ namespace WebShop.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OwnerUserId")
+                    b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SaleMultiplier")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("Sold")
@@ -185,16 +188,13 @@ namespace WebShop.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserOwnerId")
-                        .HasColumnType("int");
-
                     b.HasKey("ItemId");
 
                     b.HasIndex("ArtistId");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("OwnerUserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Item");
                 });
@@ -385,7 +385,7 @@ namespace WebShop.Migrations
 
                     b.HasOne("DAL.Model.User", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerUserId");
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Artist");
 
