@@ -90,8 +90,8 @@
             }
 
         .quantity-input {
-            width: 60px;
-            padding: 5px;
+            width: 120px;
+            padding: 10px;
             border-radius: 15px;
             border: 1px solid #555;
             background-color: #333;
@@ -159,8 +159,16 @@
 
                     <dt>@Html.DisplayNameFor(model => model.CreatedAt)</dt>
                     <dd>@Html.DisplayFor(model => model.CreatedAt)</dd>
+
                     <dt>@Html.DisplayNameFor(model => model.Owner)</dt>
                     <dd>@Html.DisplayFor(model => model.Owner.Username)</dd>
+
+                    <dt>Artist</dt>
+                    <dd>
+                        <a href="@Url.Action("Details", "Artist", new { id = Model.ArtistId })" style="color: #FFA726;">
+                            @Model.Artist.Name
+                        </a>
+                    </dd>
                 </dl>
                 <div id="countdown" class="countdown"></div>
             </div>
@@ -190,7 +198,6 @@
         </div>
     </div>
     <div style="text-align:center; margin-top: 20px;">
-        @Html.ActionLink("Edit", "Edit", new { id = Model.ItemId }, new { @class = "btn btn-primary" }) |
         <a asp-action="Index" class="btn btn-primary">Back to List</a>
     </div>
 
@@ -240,10 +247,9 @@
 
             setInterval(updateBidsList, 1000);
 
-
             function updateCountdown() {
                 const expirationDate = new Date('@expirationDate');
-                if (isNaN(expirationDate)) {
+                if (!expirationDate || isNaN(expirationDate)) {
                     document.getElementById('countdown').innerHTML = 'No Expiration Date';
                     return;
                 }

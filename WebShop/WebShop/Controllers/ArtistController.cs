@@ -31,11 +31,29 @@ namespace WebShop.Controllers
             _mapper = mapper;
         }
 
-        // GET: ArtistController
-        public ActionResult Index()
+        public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
         {
             var artists = _artistRepository.GetAll();
-            return View(artists);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                artists = artists.Where(a => a.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            var totalArtists = artists.Count();
+            var totalPages = (int)Math.Ceiling(totalArtists / (double)pageSize);
+
+            artists = artists.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            var viewModel = new ArtistListViewModel
+            {
+                Artists = artists.ToList(),
+                SearchString = searchString,
+                PageNumber = pageNumber,
+                TotalPages = totalPages
+            };
+
+            return View(viewModel);
         }
 
         // GET: ArtistController/Details/5

@@ -7,5 +7,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface ITagRepository : IRepository<Tag> { }
+    public interface ITagRepository : IRepository<Tag> {
+        Tag GetByName(string name);
+    }
 }

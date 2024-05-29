@@ -137,6 +137,21 @@ namespace WebShop.Controllers
                 _itemTagRepository.Add(itemTag);
             }
 
+            foreach (var newTag in itemViewModel.newTags)
+            {
+                var existingTag = _tagRepository.GetByName(newTag);
+
+                if (existingTag == null)
+                {
+                    var tag = new Tag { Name = newTag };
+                    _tagRepository.Add(tag);
+                    existingTag = tag;
+                }
+
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = existingTag.TagId };
+                _itemTagRepository.Add(itemTag);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -210,13 +225,13 @@ namespace WebShop.Controllers
 
         public ActionResult GetUserBids()
         {
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var bids = _bidRepository.GetHighestBidsForUser(int.Parse(userId));
+            var bids = _bidRepository.GetHighestBidsForUser(int.Parse(userId)) ?? new List<Bid>();
 
             return View(bids);
         }
+
     }
 
 }

@@ -74,8 +74,8 @@
         }
 
         .form-group textarea {
-            height: 150px; /* Ensure textarea is tall enough for long descriptions */
-            resize: vertical; /* Allow users to resize the textarea vertically */
+            height: 150px;
+            resize: vertical;
         }
 
             .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -122,6 +122,19 @@
         .form-group .input-group-append .remove-tag {
             display: inline;
         }
+
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dropdown-search {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -147,13 +160,17 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="item.Price" class="control-label"></label>
-                    <input asp-for="item.Price" class="form-control" />
+                    <input asp-for="item.Price" class="form-control" id="itemPrice" />
                     <span asp-validation-for="item.Price" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="item.SaleMultiplier" class="control-label"></label>
-                    <input asp-for="item.SaleMultiplier" class="form-control" />
+                    <input asp-for="item.SaleMultiplier" class="form-control" id="itemSaleMultiplier" />
                     <span asp-validation-for="item.SaleMultiplier" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="sellingPrice" class="control-label">Selling Price</label>
+                    <input type="text" class="form-control" id="sellingPrice" readonly />
                 </div>
                 <div class="form-group">
                     <label asp-for="item.CreatedAt" class="control-label"></label>
@@ -162,7 +179,7 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="item.ExpirationDate" class="control-label"></label>
-                    <input asp-for="item.ExpirationDate" type="date" class="form-control" />
+                    <input asp-for="item.ExpirationDate" type="datetime-local" class="form-control" />
                     <span asp-validation-for="item.ExpirationDate" class="text-danger"></span>
                 </div>
                 <div class="form-group">
@@ -179,18 +196,25 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="item.ArtistId" class="control-label">Artist</label>
-                    @Html.DropDownListFor(m => m.item.ArtistId, artistItems, new { @class = "form-control" })
+                    <div class="input-group">
+                        <input type="text" class="form-control dropdown-search" placeholder="Search artists..." id="artistSearch">
+                        @Html.DropDownListFor(m => m.item.ArtistId, artistItems, new { @class = "form-control" })
+                        <div class="input-group-append">
+                            <a href="@Url.Action("Create", "Artist")" class="btn btn-success" style="margin-left: 10px;">Add New Artist</a>
+                        </div>
+                    </div>
                     <span asp-validation-for="item.ArtistId" class="text-danger" />
                 </div>
                 <div class="form-group">
                     <label asp-for="item.CategoryId" class="control-label">Category</label>
+                    <input type="text" class="form-control dropdown-search" placeholder="Search categories..." id="categorySearch">
                     @Html.DropDownListFor(m => m.item.CategoryId, categoryItems, new { @class = "form-control" })
                     <span asp-validation-for="item.CategoryId" class="text-danger" />
                 </div>
 
                 <div id="tagsContainer" style="margin-top: 20px;">
                     <label asp-for="item.ItemTags" class="control-label">Tags</label>
-
+                    <input type="text" class="form-control dropdown-search" placeholder="Search tags..." id="tagSearch">
                     <div class="form-group tag-group">
                         <div class="input-group">
                             @Html.DropDownListFor(m => m.tagIds, tagList, new { @class = "form-control tag-dropdown" })
@@ -219,19 +243,31 @@
         }
         <script>
             $(document).ready(function () {
-                // Show remove button for newly added tag dropdowns
+                function calculateSellingPrice() {
+                    var price = parseFloat($('#itemPrice').val()) || 0;
+                    var multiplier = parseFloat($('#itemSaleMultiplier').val()) || 1;
+                    var sellingPrice = price * multiplier;
+                    $('#sellingPrice').val(sellingPrice.toFixed(2));
+                }
+
+                // Trigger calculation on input change
+                $('#itemPrice, #itemSaleMultiplier').on('input', calculateSellingPrice);
+
+                // Initial calculation
+                calculateSellingPrice();
+
+                // Handle tag adding/removal
                 $('#addTagBtn').click(function () {
                     var newTagGroup = $('.tag-group').first().clone();
                     newTagGroup.find('.tag-dropdown').val('');
                     $('#tagsContainer').append(newTagGroup);
-                    $('.remove-tag').show();
+                    $('.remove-tag').show(); // Show remove button for newly added tag dropdowns
                 });
 
-                // Hide remove button if one tag left
                 $(document).on('click', '.remove-tag', function () {
                     $(this).closest('.tag-group').remove();
                     if ($('.tag-group').length === 1) {
-                        $('.remove-tag').hide();
+                        $('.remove-tag').hide(); // Hide remove button if only one tag dropdown remains
                     }
                 });
 
@@ -246,7 +282,7 @@
                     }
                 });
 
-                // file upload
+                // Handle file upload
                 $('#uploadButton').click(function () {
                     var formData = new FormData();
                     var fileInput = $('#imageUpload')[0];
@@ -258,7 +294,7 @@
                     formData.append('file', fileInput.files[0]);
 
                     $.ajax({
-                        url: '@Url.Action("UploadImage")',
+                        url: '@Url.Action("UploadImage", "Item")',
                         type: 'POST',
                         data: formData,
                         contentType: false,
@@ -280,6 +316,28 @@
 
                 // Trigger change to show the current image path's preview when the page loads
                 $('#imagePath').trigger('change');
+
+                // Search functionality for dropdowns
+                $('#artistSearch').on('input', function () {
+                    var searchValue = $(this).val().toLowerCase();
+                    $('#item_ArtistId option').filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                    });
+                });
+
+                $('#categorySearch').on('input', function () {
+                    var searchValue = $(this).val().toLowerCase();
+                    $('#item_CategoryId option').filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                    });
+                });
+
+                $('#tagSearch').on('input', function () {
+                    var searchValue = $(this).val().toLowerCase();
+                    $('.tag-dropdown option').filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                    });
+                });
 
                 // Add tag lists based on tagIds length
                 var tagIdsLength = @Model.tagIds.Count;

@@ -7,6 +7,15 @@ namespace DAL.Repositories
 {
     public class TagRepository : Repository<Tag>, ITagRepository
     {
-        public TagRepository(DataContext context) : base(context) { }
+        private readonly DataContext _context;
+        public TagRepository(DataContext context) : base(context) {
+        
+            _context = context;
+        }
+
+        public Tag GetByName(string name)
+        {
+            return _context.Tag.FirstOrDefault(t => t.Name == name);
+        }
     }
 }

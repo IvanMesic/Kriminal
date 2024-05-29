@@ -189,7 +189,10 @@
         </div>
     </div>
     <div class="back-link">
-        @Html.ActionLink("Edit", "Edit", new { id = Model.ArtistId }, new { @class = "btn btn-primary" }) |
+        @if (User.IsInRole("Admin"))
+        {
+            @Html.ActionLink("Edit", "Edit", new { id = Model.ArtistId }, new { @class = "btn btn-primary" })
+        }
         <a asp-action="Index" class="btn btn-primary">Back to List</a>
     </div>
 </body>

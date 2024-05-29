@@ -7,6 +7,7 @@ namespace WebShop.Model
         public Item item { get; set; }
 
         public List<int> tagIds { get; set; }
+        public List<string> newTags { get; set; }
 
     }
 }

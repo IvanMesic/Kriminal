@@ -49,8 +49,8 @@ namespace DAL.Data
                 .HasConversion<string>();
 
             modelBuilder.Entity<TransactionItem>()
-    .Property(ti => ti.TransactionItemId)
-    .ValueGeneratedOnAdd();
+            .Property(ti => ti.TransactionItemId)
+            .ValueGeneratedOnAdd();
         }
     }
 }

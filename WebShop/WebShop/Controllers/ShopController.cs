@@ -110,33 +110,38 @@ namespace WebShop.Controllers
         [HttpPost]
         public JsonResult PlaceBid(int bid, int itemId)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Json(new { success = false, message = "You need to be logged in to place a bid." });
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
+
             var highestBid = _bidRepository.GetHighestBidForItem(itemId);
             var item = _itemRepository.GetById(itemId);
+
+            if (item == null)
+            {
+                return Json(new { success = false, message = "Item not found." });
+            }
 
             if (bid <= highestBid.Amount || bid <= (int)((double)item.Price * 0.6))
             {
                 return Json(new { success = false, message = "Bid too low" });
             }
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Json(new { success = false, message = "Unauthorized" });
-            }
-
-            var userId = int.Parse(userIdClaim.Value);
-
             if (item.OwnerId == userId)
             {
-                return Json(new { success = false, message = "Can not bid on your own Auction" });
+                return Json(new { success = false, message = "Cannot bid on your own auction." });
             }
 
-
-            Bid tempBid = new Bid()
+            var tempBid = new Bid
             {
                 UserId = userId,
                 ItemId = itemId,
-                Amount = bid
+                Amount = bid,
+                Time = DateTime.Now
             };
 
             _bidRepository.Add(tempBid);
@@ -148,7 +153,7 @@ namespace WebShop.Controllers
                 item.Sold = true;
                 _itemRepository.Update(item);
 
-                var transaction = new Transaction()
+                var transaction = new Transaction
                 {
                     UserId = userId,
                     Date = DateTime.Now,
@@ -157,7 +162,7 @@ namespace WebShop.Controllers
 
                 _transactionRepository.Add(transaction);
 
-                var transactionItem = new TransactionItem()
+                var transactionItem = new TransactionItem
                 {
                     ItemId = item.ItemId,
                     TransactionId = transaction.TransactionId
@@ -170,7 +175,6 @@ namespace WebShop.Controllers
 
             return Json(new { success = true });
         }
-
 
         public ActionResult GetBids(int itemId)
         {
@@ -189,7 +193,7 @@ namespace WebShop.Controllers
                 PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
                 document.Open();
 
-                // Add a title
+
                 Font titleFont = FontFactory.GetFont("Arial", 18, Font.BOLD);
                 Paragraph title = new Paragraph("Items List", titleFont)
                 {
@@ -198,11 +202,11 @@ namespace WebShop.Controllers
                 };
                 document.Add(title);
 
-                // Add a table
+
                 PdfPTable table = new PdfPTable(6) { WidthPercentage = 100 };
                 table.SetWidths(new float[] { 10f, 20f, 40f, 10f, 10f, 10f });
 
-                // Add table headers
+
                 Font headerFont = FontFactory.GetFont("Arial", 12, Font.BOLD);
                 table.AddCell(new PdfPCell(new Phrase("ID", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
                 table.AddCell(new PdfPCell(new Phrase("Title", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
@@ -211,7 +215,7 @@ namespace WebShop.Controllers
                 table.AddCell(new PdfPCell(new Phrase("Created At", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
                 table.AddCell(new PdfPCell(new Phrase("Owner", headerFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
 
-                // Add table rows
+
                 Font rowFont = FontFactory.GetFont("Arial", 10, Font.NORMAL);
                 foreach (var item in items)
                 {
@@ -266,16 +270,29 @@ namespace WebShop.Controllers
         public ActionResult Create(CreateItemViewModel itemViewModel)
         {
             var item = _mapper.Map<Item>(itemViewModel.item);
-
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             item.OwnerId = int.Parse(userIdClaim.Value);
-
             _itemRepository.Add(item);
 
             foreach (var tagId in itemViewModel.tagIds)
             {
                 var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
+                _itemTagRepository.Add(itemTag);
+            }
+
+            foreach (var newTag in itemViewModel.newTags)
+            {
+                var existingTag = _tagRepository.GetByName(newTag);
+
+                if (existingTag == null)
+                {
+                    var tag = new Tag { Name = newTag };
+                    _tagRepository.Add(tag);
+                    existingTag = tag;
+                }
+
+                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = existingTag.TagId };
                 _itemTagRepository.Add(itemTag);
             }
 

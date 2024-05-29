@@ -73,8 +73,8 @@
         }
 
         .form-group textarea {
-            height: 150px; /* Ensure textarea is tall enough for long descriptions */
-            resize: vertical; /* Allow users to resize the textarea vertically */
+            height: 150px;
+            resize: vertical;
         }
 
             .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -121,6 +121,19 @@
         .form-group .input-group-append .remove-tag {
             display: inline;
         }
+
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dropdown-search {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -143,6 +156,11 @@
                     <label asp-for="item.Price" class="control-label"></label>
                     <input asp-for="item.Price" class="form-control" />
                     <span asp-validation-for="item.Price" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="item.SaleMultiplier" class="control-label"></label>
+                    <input asp-for="item.SaleMultiplier" class="form-control" />
+                    <span asp-validation-for="item.SaleMultiplier" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="item.CreatedAt" class="control-label"></label>
@@ -168,17 +186,25 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="item.ArtistId" class="control-label">Artist</label>
-                    @Html.DropDownListFor(m => m.item.ArtistId, artistItems, new { @class = "form-control" })
+                    <div class="input-group">
+                        <input type="text" class="form-control dropdown-search" placeholder="Search artists..." id="artistSearch">
+                        @Html.DropDownListFor(m => m.item.ArtistId, artistItems, new { @class = "form-control" })
+                        <div class="input-group-append">
+                            <a href="@Url.Action("Create", "Artist")" class="btn btn-success" style="margin-left: 10px;">Add New Artist</a>
+                        </div>
+                    </div>
                     <span asp-validation-for="item.ArtistId" class="text-danger" />
                 </div>
                 <div class="form-group">
                     <label asp-for="item.CategoryId" class="control-label">Category</label>
+                    <input type="text" class="form-control dropdown-search" placeholder="Search categories..." id="categorySearch">
                     @Html.DropDownListFor(m => m.item.CategoryId, categoryItems, new { @class = "form-control" })
                     <span asp-validation-for="item.CategoryId" class="text-danger" />
                 </div>
 
                 <div id="tagsContainer" style="margin-top: 20px;">
                     <label asp-for="item.ItemTags" class="control-label">Tags</label>
+                    <input type="text" class="form-control dropdown-search" placeholder="Search tags..." id="tagSearch">
 
                     <div class="form-group tag-group">
                         <div class="input-group">
@@ -190,6 +216,17 @@
                     </div>
                 </div>
                 <button type="button" id="addTagBtn" class="btn btn-success">Add Tag</button>
+
+                <div id="newTagsContainer" style="margin-top: 20px;">
+                    <label for="newTags" class="control-label">New Tags</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="newTagInput" placeholder="Enter new tag" />
+                        <button type="button" id="addNewTagBtn" class="btn btn-success" style="margin-top: 10px;">Add New Tag</button>
+                    </div>
+                    <ul id="newTagsList" class="list-group">
+                        <!-- New tags will be listed here -->
+                    </ul>
+                </div>
 
                 <div class="form-group">
                     <input type="submit" value="Create" style="margin-top: 20px;" class="btn btn-primary" />
@@ -223,6 +260,20 @@
                     }
                 });
 
+                // Handle new tag addition
+                $('#addNewTagBtn').click(function () {
+                    var newTag = $('#newTagInput').val().trim();
+                    if (newTag !== '') {
+                        var newTagItem = $('<li class="list-group-item">' + newTag + '<button type="button" class="btn btn-danger btn-sm remove-new-tag" style="float: right;">Remove</button><input type="hidden" name="newTags" value="' + newTag + '" /></li>');
+                        $('#newTagsList').append(newTagItem);
+                        $('#newTagInput').val('');
+                    }
+                });
+
+                $(document).on('click', '.remove-new-tag', function () {
+                    $(this).closest('li').remove();
+                });
+
                 // Show image preview when image path is changed
                 $('#imagePath').change(function () {
                     var imagePath = $(this).val();
@@ -246,7 +297,7 @@
                     formData.append('file', fileInput.files[0]);
 
                     $.ajax({
-                        url: '@Url.Action("UploadImage", "Item")', // Ensure the correct controller is specified
+                        url: '@Url.Action("UploadImage", "Item")',
                         type: 'POST',
                         data: formData,
                         contentType: false,
@@ -268,6 +319,28 @@
 
                 // Trigger change to show the current image path's preview when the page loads
                 $('#imagePath').trigger('change');
+
+                // Search functionality for dropdowns
+                $('#artistSearch').on('input', function () {
+                    var searchValue = $(this).val().toLowerCase();
+                    $('#item_ArtistId option').filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                    });
+                });
+
+                $('#categorySearch').on('input', function () {
+                    var searchValue = $(this).val().toLowerCase();
+                    $('#item_CategoryId option').filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                    });
+                });
+
+                $('#tagSearch').on('input', function () {
+                    var searchValue = $(this).val().toLowerCase();
+                    $('.tag-dropdown option').filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                    });
+                });
             });
         </script>
     }

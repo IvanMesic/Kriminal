@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DAL.Model.Artist>
+﻿@model WebShop.Model.ArtistListViewModel
 
 @{
     ViewData["Title"] = "Artists";
@@ -48,6 +48,19 @@
                 background: linear-gradient(#FF9800, #FFA726);
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
+
+        .search-form {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #FFF;
+            margin-right: 10px;
+        }
 
         .artists-container {
             display: flex;
@@ -107,14 +120,53 @@
                 .artist-card-actions a:hover {
                     color: #FF9800;
                 }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style-type: none;
+            padding: 0;
+        }
+
+            .pagination li {
+                margin: 0 5px;
+            }
+
+            .pagination a {
+                color: #FFA726;
+                text-decoration: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                border: 1px solid #FFA726;
+                transition: all 0.3s ease;
+            }
+
+                .pagination a:hover {
+                    background-color: #FF9800;
+                    color: white;
+                }
+
+            .pagination .active a {
+                background-color: #FFA726;
+                color: white;
+            }
     </style>
 </head>
 <body>
     <h1>Artists</h1>
     <div class="container">
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">Create New</a>
+        }
+
+        <form asp-action="Index" method="get" class="search-form">
+            <input type="text" name="searchString" value="@Model.SearchString" class="search-input" placeholder="Search by artist name..." />
+            <input type="submit" value="Search" class="btn-primary" />
+        </form>
+
         <div class="artists-container">
-            @foreach (var item in Model)
+            @foreach (var item in Model.Artists)
             {
                 <div class="artist-card">
                     <a href="@Url.Action("Details", "Artists", new { id = item.ArtistId })">
@@ -123,14 +175,31 @@
                     <div class="artist-card-body">
                         <h3 class="artist-card-title">@Html.DisplayFor(modelItem => item.Name)</h3>
                         <div class="artist-card-actions">
-                            @Html.ActionLink("Edit", "Edit", new { id = item.ArtistId }) |
-                            @Html.ActionLink("Details", "Details", new { id = item.ArtistId }) |
-                            @Html.ActionLink("Delete", "Delete", new { id = item.ArtistId })
+                            @if (User.IsInRole("Admin"))
+                            {
+                                @Html.ActionLink("Edit ", "Edit", new { id = item.ArtistId })
+                                @Html.ActionLink("Details ", "Details", new { id = item.ArtistId })
+                                @Html.ActionLink("Delete", "Delete", new { id = item.ArtistId })
+                                ;
+                            }
+                            else
+                            {
+                                @Html.ActionLink("Details", "Details", new { id = item.ArtistId })
+                            }
                         </div>
                     </div>
                 </div>
             }
         </div>
+
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="@(Model.PageNumber == i ? "active" : "")">
+                    <a asp-action="Index" asp-route-searchString="@Model.SearchString" asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+        </ul>
     </div>
 </body>
 </html>

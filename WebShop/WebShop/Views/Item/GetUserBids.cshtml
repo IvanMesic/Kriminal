@@ -5,45 +5,146 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>GetUserBids</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GetUserBids</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #FFFFFF;
+            background-color: #121212;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Item.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Amount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Time)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ItemId)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Amount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Time)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemId)
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        h1 {
+            font-family: 'Merriweather', serif;
+            color: #FFA726;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+            background-color: #1E1E1E;
+            border-collapse: collapse;
+        }
+
+            .table th, .table td {
+                padding: 15px;
+                text-align: left;
+                border-bottom: 1px solid #444;
+            }
+
+            .table th {
+                background-color: #333;
+                color: #FFA726;
+            }
+
+            .table tbody tr:nth-child(odd) {
+                background-color: #2A2A2A;
+            }
+
+            .table tbody tr:hover {
+                background-color: #333;
+            }
+
+        .item-image {
+            max-width: 100px;
+            height: auto;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+            .item-image:hover {
+                transform: scale(1.1);
+            }
+
+        .create-new {
+            display: inline-block;
+            margin-bottom: 20px;
+            background: linear-gradient(#FFA726, #FF9800);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+            .create-new:hover {
+                background: linear-gradient(#FF9800, #FFA726);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+    </style>
+</head>
+<body>
+    <h1>GetUserBids</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>@Html.DisplayNameFor(model => model.First().Amount)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Time)</th>
+                <th>@Html.DisplayNameFor(model => model.First().ItemId)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var bid in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (bid.Item != null && !string.IsNullOrEmpty(bid.Item.ImagePath))
+                            {
+                                <a href="@Url.Action("ItemDetails", "Shop", new { id = bid.ItemId })">
+                                    <img src="@bid.Item.ImagePath" alt="@bid.Item.Title" class="item-image" />
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            @if (bid.Item != null)
+                            {
+                                @Html.DisplayFor(modelItem => bid.Item.Title)
+                            }
+                            else
+                            {
+                                <span>No Title</span>
+                            }
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => bid.Amount)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => bid.Time)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => bid.ItemId)
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="text-align:center;">
+                        No bids available.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

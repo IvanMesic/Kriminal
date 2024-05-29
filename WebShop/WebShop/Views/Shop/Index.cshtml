@@ -36,6 +36,7 @@
                     Select Categories
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownCategories">
+                    <input type="text" class="form-control dropdown-search" placeholder="Search categories..." id="categorySearch">
                     @foreach (var category in categories)
                     {
                         <div class="form-check dropdown-item">
@@ -55,6 +56,7 @@
                     Select Artists
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownArtists">
+                    <input type="text" class="form-control dropdown-search" placeholder="Search artists..." id="artistSearch">
                     @foreach (var artist in artists)
                     {
                         <div class="form-check dropdown-item">
@@ -74,6 +76,7 @@
                     Select Tags
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownTags">
+                    <input type="text" class="form-control dropdown-search" placeholder="Search tags..." id="tagSearch">
                     @foreach (var tag in tags)
                     {
                         <div class="form-check dropdown-item">
@@ -89,6 +92,7 @@
         <input type="hidden" name="PageNumber" id="PageNumber" value="1" />
 
         <button type="submit" id="filterButtonShop" class="btn btn-primary">Filter</button>
+        <button type="button" id="clearButtonShop" class="btn btn-secondary">Clear Filters</button>
     </form>
 </div>
 
@@ -104,6 +108,17 @@
         $(document).ready(function () {
             $('#filterButtonShop').on('click', function () {
                 $('#PageNumber').val(1);
+            });
+
+            $('#clearButtonShop').on('click', function () {
+                $('#filter-form').find('input[type="text"], input[type="number"], input[type="checkbox"]').val('').prop('checked', false);
+            });
+
+            $('.dropdown-search').on('input', function () {
+                var searchValue = $(this).val().toLowerCase();
+                $(this).nextAll('.dropdown-item').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                });
             });
 
             function loadShopItems() {
