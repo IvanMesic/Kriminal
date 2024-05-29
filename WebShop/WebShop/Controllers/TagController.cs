@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebShop.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TagController : Controller
     {
         private readonly ITagRepository tagRepository;
@@ -14,7 +15,6 @@ namespace WebShop.Controllers
             this.tagRepository = tagRepository;
         }
 
-        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
             var tags = tagRepository.GetAll();
@@ -29,6 +29,7 @@ namespace WebShop.Controllers
         }
 
         // GET: TagController/Create
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create()
         {
             return View();
@@ -37,6 +38,7 @@ namespace WebShop.Controllers
         // POST: TagController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create(Tag tag)
         {
             try

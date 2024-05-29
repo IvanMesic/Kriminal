@@ -2,6 +2,7 @@
 using DAL.Interfaces;
 using DAL.Model;
 using DAL.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Model;

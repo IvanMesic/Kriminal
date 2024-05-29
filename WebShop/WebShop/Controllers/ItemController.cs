@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DAL.Interfaces;
 using DAL.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
@@ -9,6 +10,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebShop.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ItemController : Controller
     {
         private readonly IItemRepository _itemRepository;
@@ -42,6 +44,7 @@ namespace WebShop.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -213,7 +216,7 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        [Authorize(Roles = "Admin, User")]
         public ActionResult GetItemsForUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -223,6 +226,7 @@ namespace WebShop.Controllers
             return View(items);
         }
 
+        [Authorize(Roles = "Admin, User")]
         public ActionResult GetUserBids()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -235,7 +239,6 @@ namespace WebShop.Controllers
     }
 
 }
-
     public static class HttpRequestExtensions
     {
         public static bool IsAjaxRequest(this HttpRequest request)

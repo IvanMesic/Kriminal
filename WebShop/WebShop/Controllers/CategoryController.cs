@@ -2,11 +2,13 @@
 using DAL.Interfaces;
 using DAL.Model;
 using DAL.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebShop.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CategoryController : Controller
     {
 
@@ -32,6 +34,7 @@ namespace WebShop.Controllers
         }
 
         // GET: CategoryController/Create
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create()
         {
             return View();
@@ -40,6 +43,7 @@ namespace WebShop.Controllers
         // POST: CategoryController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create(Category category)
         {
             try
