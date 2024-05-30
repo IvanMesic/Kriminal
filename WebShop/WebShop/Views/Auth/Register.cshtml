@@ -31,6 +31,75 @@
     <a asp-action="Login">Already have an account? Login here.</a>
 </div>
 
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: #FFFFFF;
+        background-color: #121212;
+        background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/5-dots.png');
+        background-size: auto;
+        background-repeat: repeat;
+        background-attachment: fixed;
+        padding: 20px;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    h2 {
+        color: #FF9800; /* Match the orange color used for labels */
+        text-align: center;
+    }
+
+    .form-group label {
+        color: #FF9800;
+    }
+
+    .form-control {
+        background-color: #2c2c2c;
+        color: #FF9800;
+        border: 1px solid #FF9800;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+        .form-control:focus {
+            border-color: #FFA726; /* Slightly lighter orange on focus */
+            box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+        }
+
+    .text-danger {
+        color: #FF5722; /* Bright red for validation messages */
+    }
+
+    .btn-primary {
+        background-color: #FF9800;
+        border-color: #FF9800;
+        color: #FFFFFF;
+        padding: 10px 20px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #FFA726; /* Lighter orange on hover */
+            border-color: #FFA726;
+        }
+
+    a {
+        color: #FF9800;
+    }
+
+        a:hover {
+            color: #FFA726;
+            text-decoration: none;
+        }
+
+    div {
+        text-align: center;
+    }
+
+</style>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
