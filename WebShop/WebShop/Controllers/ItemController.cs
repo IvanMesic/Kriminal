@@ -10,7 +10,6 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebShop.Controllers
 {
-    [Authorize(Roles = "Admin")]
     public class ItemController : Controller
     {
         private readonly IItemRepository _itemRepository;
@@ -60,7 +59,7 @@ namespace WebShop.Controllers
             var relativePath = "/static-files/" + file.FileName;
             return Json(new { success = true, filePath = relativePath });
         }
-
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Index(ItemListViewModel itemListViewModel)
         {
             int pageSize = 10;
@@ -107,8 +106,7 @@ namespace WebShop.Controllers
 
             return View(itemListViewModel);
         }
-
-        // GET: HomeController1/Details/5
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Details(int id)
         {
             var item = _itemRepository.GetById(id);
@@ -121,7 +119,7 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
 
         }
-
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create()
         {
             return View();
@@ -129,6 +127,7 @@ namespace WebShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create(CreateItemViewModel itemViewModel)
         {
             var item = _mapper.Map<Item>(itemViewModel.item);
@@ -158,7 +157,7 @@ namespace WebShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Edit(int id)
         {
             var item = _itemRepository.GetById(id);
@@ -185,6 +184,7 @@ namespace WebShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Edit(CreateItemViewModel itemViewModel)
         {
             var item = _mapper.Map<Item>(itemViewModel.item);

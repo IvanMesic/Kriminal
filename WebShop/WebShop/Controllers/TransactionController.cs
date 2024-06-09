@@ -8,7 +8,7 @@ using WebShop.Services;
 
 namespace WebShop.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, User")]
     public class TransactionController : Controller
     {
         private readonly ITransactionService _transactionService;

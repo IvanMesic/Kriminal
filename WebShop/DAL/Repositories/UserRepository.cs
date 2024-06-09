@@ -37,7 +37,7 @@ public class UserRepository : IUserRepository
     {
         return ctx.User.FirstOrDefault(user => user.UserId == id);
     }
-
+        
     public User? GetUser(string username)
     {
         return ctx.User.FirstOrDefault(user => user.Username.Equals(username));

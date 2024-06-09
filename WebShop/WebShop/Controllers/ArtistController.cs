@@ -63,7 +63,7 @@ namespace WebShop.Controllers
             var artist = _artistRepository.GetById(id);
             return View(artist);
         }
-
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create()
         {
             return View();
@@ -86,7 +86,7 @@ namespace WebShop.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Edit(int id)
         {
             var artist = _artistRepository.GetById(id);
@@ -113,6 +113,7 @@ namespace WebShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Edit(CreateArtistViewModel artistViewModel)
         {
             var artist = artistViewModel.artist;
@@ -136,7 +137,7 @@ namespace WebShop.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = "Admin, User")]
         // GET: ArtistController/Delete/5
         public ActionResult Delete(int id)
         {
