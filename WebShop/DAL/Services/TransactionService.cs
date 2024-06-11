@@ -44,14 +44,7 @@ namespace WebShop.Services
             };
 
             _transactionRepository.Add(transaction);
-            /*
-            foreach (var transactionItem in transaction.TransactionItems)
-            {
-
-                transactionItem.TransactionId = transaction.TransactionId;
-                _transactionItemRepository.Add(transactionItem);
-            }
-            */
+            
             _cartService.ClearCart();
             return transaction;
         }

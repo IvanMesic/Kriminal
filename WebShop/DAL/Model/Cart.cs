@@ -16,6 +16,7 @@ namespace DAL.Model
             set => items = value.ToList(); 
         }
 
+
         public void AddItem(int itemId, string name, decimal price, int quantity, decimal multiplier)
         {
             var existingItem = items.FirstOrDefault(i => i.ItemId == itemId);

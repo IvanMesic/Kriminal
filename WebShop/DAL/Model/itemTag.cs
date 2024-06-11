@@ -14,5 +14,7 @@ namespace DAL.Model
         // Navigation properties
         public virtual Item Item { get; set; }
         public virtual Tag Tag { get; set; }
+
+    
     }
 }

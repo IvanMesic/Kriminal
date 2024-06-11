@@ -14,5 +14,7 @@ namespace DAL.Model
         // Navigation properties
         public virtual ICollection<Item> Items { get; set; }
         public virtual ICollection<ArtistTag> ArtistTags { get; set; }
+
+      
     }
 }

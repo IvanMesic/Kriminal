@@ -14,5 +14,7 @@ namespace DAL.Model
         public int Quantity { get; set; }
         public decimal SaleMultiplier { get; set; }
         public decimal Total => Price * Quantity;
+
+      
     }
 }

@@ -16,4 +16,6 @@ namespace DAL.Model
         public virtual User User { get; set; }
         public virtual ICollection<TransactionItem> TransactionItems { get; set; }
     }
+
+  
 }

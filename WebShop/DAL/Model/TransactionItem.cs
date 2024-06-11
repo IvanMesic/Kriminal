@@ -14,5 +14,9 @@ namespace DAL.Model
         // Navigation properties
         public virtual Transaction Transaction { get; set; }
         public virtual Item Item { get; set; }
+
+      
     }
+
+ 
 }

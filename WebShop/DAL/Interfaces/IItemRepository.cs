@@ -16,7 +16,11 @@ namespace DAL.Interfaces
      IList<Category>? categories = null,
      decimal? priceMin = 0,
      decimal? priceMax = null,
-     string? searchQuery = null);
+     string? searchQuery = null,
+     bool includeSold = false,
+     bool includeSale = false,
+     string? sortBy = null,
+     string? sortOrder = null);
 
         public IList<Item> GetAllApi();
 

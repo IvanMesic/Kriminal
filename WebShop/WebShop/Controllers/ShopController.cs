@@ -5,6 +5,7 @@ using DAL.Repositories;
 using DAL.ServiceInterfaces;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing.Printing;
@@ -55,6 +56,7 @@ namespace WebShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult AddToCart(int id, int quantity = 1)
         {
             var item = _itemRepository.GetById(id);
@@ -108,6 +110,7 @@ namespace WebShop.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, User")]
         public JsonResult PlaceBid(int bid, int itemId)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -259,7 +262,7 @@ namespace WebShop.Controllers
         }
 
 
-        
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create()
         {
             return View();
@@ -267,6 +270,7 @@ namespace WebShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Create(CreateItemViewModel itemViewModel)
         {
             var item = _mapper.Map<Item>(itemViewModel.item);
@@ -326,18 +330,21 @@ namespace WebShop.Controllers
                 categories: itemListViewModel.categories,
                 priceMin: itemListViewModel.priceMin,
                 priceMax: itemListViewModel.priceMax,
-                searchQuery: itemListViewModel.searchQuery
-                );
+                searchQuery: itemListViewModel.searchQuery,
+                includeSold: itemListViewModel.includeSold,
+                includeSale: itemListViewModel.includeSale,
+                sortBy: itemListViewModel.sortBy,
+                sortOrder: itemListViewModel.sortOrder
+            );
 
             int totalPages = (int)Math.Ceiling((double)filteredItems.Count() / pageSize);
 
-            ViewBag.TotalPages = totalPages; //SET THESE
-            itemListViewModel.pageNumber = pageNumber;//SET THESE
+            ViewBag.TotalPages = totalPages;
+            itemListViewModel.pageNumber = pageNumber;
 
             var filteredItemsPaged = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
             itemListViewModel.items = filteredItemsPaged.ToArray();
-
 
             if (Request.IsAjaxRequest())
             {

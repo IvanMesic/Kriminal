@@ -35,7 +35,6 @@ namespace WebShop
             builder.Services.AddScoped<IItemTagRepository, ItemTagRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IArtistTagRepository, ArtistTagRepository>();
-            builder.Services.AddScoped<IActionItemRepository, ActionItemRepository>();
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
             builder.Services.AddScoped<ITransactionItemRepository, TransactionItemRepository>();
             builder.Services.AddScoped<ICartService, CartService>();

@@ -116,15 +116,7 @@
             }
 
         .quantity-input {
-            width: 60px;
-            padding: 5px;
-            border-radius: 15px;
-            border: 1px solid #555;
-            background-color: #333;
-            color: #FFF;
-            text-align: center;
-            margin-right: 10px;
-            transition: all 0.3s ease;
+            display: none; /* Hide the quantity input */
         }
 
             .quantity-input:focus {
@@ -181,8 +173,8 @@
                     <p class="card-text">Price: @string.Format("{0:n0} $", item.Price * saleMultiplier)</p>
                     <form asp-action="AddToCart" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="@item.ItemId" />
-                        <input type="number" name="quantity" value="1" min="1" class="quantity-input" @(item.Sold ? "disabled" : "") />
-                        <input type="submit" value="Add to Cart" class="btn btn-primary" @(item.Sold ? "disabled" : "") />
+                        <input type="hidden" name="quantity" value="1" /> 
+                        <input type="submit" value="Add to Cart" class="btn btn-primary" @(item.Sold ? "disabled" : "") /> 
                     </form>
                 </div>
             </div>

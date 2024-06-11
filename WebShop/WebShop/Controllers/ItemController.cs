@@ -70,12 +70,12 @@ namespace WebShop.Controllers
                 itemListViewModel.tags.Add(_tagRepository.GetById(tagId));
             }
 
-            foreach(int categoryId in itemListViewModel.selectedCategories)
+            foreach (int categoryId in itemListViewModel.selectedCategories)
             {
                 itemListViewModel.categories.Add(_categoryRepository.GetById(categoryId));
             }
 
-            foreach(int artistId in itemListViewModel.selectedArtists)
+            foreach (int artistId in itemListViewModel.selectedArtists)
             {
                 itemListViewModel.artists.Add(_artistRepository.GetById(artistId));
             }
@@ -86,18 +86,19 @@ namespace WebShop.Controllers
                 categories: itemListViewModel.categories,
                 priceMin: itemListViewModel.priceMin,
                 priceMax: itemListViewModel.priceMax,
-                searchQuery: itemListViewModel.searchQuery
-                );
+                searchQuery: itemListViewModel.searchQuery,
+                includeSold: itemListViewModel.includeSold,
+                includeSale: itemListViewModel.includeSale
+            );
 
             int totalPages = (int)Math.Ceiling((double)filteredItems.Count() / pageSize);
 
-            ViewBag.TotalPages = totalPages; //SET THESE
-            itemListViewModel.pageNumber = pageNumber;//SET THESE
+            ViewBag.TotalPages = totalPages; // SET THESE
+            itemListViewModel.pageNumber = pageNumber; // SET THESE
 
             var filteredItemsPaged = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
             itemListViewModel.items = filteredItemsPaged.ToArray();
-
 
             if (Request.IsAjaxRequest())
             {
@@ -106,6 +107,7 @@ namespace WebShop.Controllers
 
             return View(itemListViewModel);
         }
+
         [Authorize(Roles = "Admin, User")]
         public ActionResult Details(int id)
         {

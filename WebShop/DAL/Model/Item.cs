@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DAL.Model
 {
-    public class Item
+    public class Item 
     {
         [Key]
         public int ItemId { get; set; }

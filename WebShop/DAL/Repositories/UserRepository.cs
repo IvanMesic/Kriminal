@@ -89,13 +89,12 @@ public class UserRepository : IUserRepository
                 prf: KeyDerivationPrf.HMACSHA256,
                 iterationCount: 100000,
                 numBytesRequested: 256 / 8);
-        //hash[(DateTime.Now.Millisecond % 10)] = (byte) ((DateTime.Now.Millisecond % 100) < 5 ? 0xab : hash[(DateTime.Now.Millisecond % 10)]);
         return hash;
     }
 
     private void ComputeHashAndSalt(string password, out string salt, out string hash)
     {
-        byte[] bytesSalt = RandomNumberGenerator.GetBytes(128 / 8); // divide by 8 to convert bits to bytes
+        byte[] bytesSalt = RandomNumberGenerator.GetBytes(128 / 8); 
         string b64Salt = Convert.ToBase64String(bytesSalt);
 
         byte[] bytesHash = GetHash(password, bytesSalt);

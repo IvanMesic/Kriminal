@@ -30,7 +30,6 @@ namespace DAL.Data
         public DbSet<Artist> Artist { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<Item> Item { get; set; }
-        public DbSet<ActionItem> Actionitem { get; set; }
         public DbSet<ArtistTag> ArtistTag { get; set; }
         public DbSet<ItemTag> ItemTag { get; set; }
         public DbSet<Bid> Bid { get; set; }

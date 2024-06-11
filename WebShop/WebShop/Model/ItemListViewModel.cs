@@ -9,7 +9,7 @@ namespace WebShop.Model
         public IList<Category> categories { get; set; } = new List<Category>();
 
         public IList<int> selectedTags { get; set; } = new List<int>();
-        public IList<int> selectedArtists {  get; set; } = new List<int>();
+        public IList<int> selectedArtists { get; set; } = new List<int>();
         public IList<int> selectedCategories { get; set; } = new List<int>();
 
         public decimal? priceMin { get; set; }
@@ -17,7 +17,11 @@ namespace WebShop.Model
         public string? searchQuery { get; set; }
         public int? pageNumber { get; set; }
 
-        public IList<Item>? items { get; set; }
+        public bool includeSold { get; set; } = false;
+        public bool includeSale { get; set; } = false;
 
+        public string? sortBy { get; set; } = null;
+        public string? sortOrder { get; set; } = "asc";
+        public IList<Item>? items { get; set; }
     }
 }
