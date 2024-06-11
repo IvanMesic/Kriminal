@@ -1,35 +1,33 @@
 ﻿using AutoMapper;
-using DAL.Interfaces;
 using DAL.Model.DTO;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
+using WebShop.Services.Interfaces;
 
 namespace WebShop.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly IUserRepository userRepository;
-        private readonly IMapper mapper;
-        private readonly IConfiguration configuration;
+        private readonly IAuthService _authService;
 
-        public AuthController(IUserRepository userRepository, IMapper mapper, IConfiguration configuration)
+        public AuthController(IAuthService authService)
         {
-            this.userRepository = userRepository;
-            this.mapper = mapper;
-            this.configuration = configuration;
+            _authService = authService;
         }
 
         [HttpGet]
         public IActionResult HelloWorld()
         {
-            string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userId = _authService.GetAuthenticatedUserIdAsync().Result;
 
             var model = new
             {
-                authenticated = User.Identity.IsAuthenticated,
+                authenticated = _authService.IsAuthenticated(),
                 userId = userId
             };
 
@@ -42,37 +40,17 @@ namespace WebShop.Controllers
             return View();
         }
 
-        [HttpPost()]
-        public IActionResult Login(LoginDTO login)
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDTO login)
         {
             if (!ModelState.IsValid)
                 return View(login);
 
-            var user = userRepository.GetUser(login.Username);
-
-            if (user == null || !userRepository.Authenticate(login))
+            if (!await _authService.LoginAsync(login))
             {
                 ModelState.AddModelError("Username", "Invalid username or password");
                 return View(login);
             }
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var properties = new AuthenticationProperties
-            {
-                IsPersistent = false
-            };
-
-            HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                properties).Wait();
 
             return RedirectToAction("Index", "Home");
         }
@@ -86,7 +64,7 @@ namespace WebShop.Controllers
         [HttpPost]
         public async Task<IActionResult> LogoutConfirmed()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _authService.LogoutAsync();
             return RedirectToAction("Login", "Auth");
         }
 
@@ -97,27 +75,18 @@ namespace WebShop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(RegisterDTO model)
+        public async Task<IActionResult> Register(RegisterDTO model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var userExists = userRepository.UserExists(model.Username);
-            if (userExists)
+            if (!await _authService.RegisterAsync(model))
             {
-                ModelState.AddModelError("", "User already exists");
+                ModelState.AddModelError("", "User already exists or cannot be created.");
                 return View(model);
             }
-
-            if (!userRepository.CanCreate(model))
-            {
-                ModelState.AddModelError("", "Username or Email is already in use.");
-                return View(model);
-            }
-
-            userRepository.Register(model);
 
             return RedirectToAction("Login");
         }

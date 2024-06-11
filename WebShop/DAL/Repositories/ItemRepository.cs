@@ -53,7 +53,6 @@ public class ItemRepository : Repository<Item>, IItemRepository
     {
         var query = _context.Item.AsQueryable();
 
-        // Collect artist IDs based on specified tags
         var artistIdsWithTag = new List<int>();
         if (tags != null && tags.Any())
         {

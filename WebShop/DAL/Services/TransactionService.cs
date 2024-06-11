@@ -10,16 +10,19 @@ namespace WebShop.Services
         private readonly ITransactionItemRepository _transactionItemRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICartService _cartService;
+        private readonly IItemRepository _itemRepository;
 
         public TransactionService(ITransactionRepository transactionRepository, 
                                   ITransactionItemRepository transactionItemRepository,
                                   IUserRepository userRepository, 
-                                  ICartService cartService)
+                                  ICartService cartService,
+                                  IItemRepository itemRepository)
         {
             _transactionRepository = transactionRepository;
             _transactionItemRepository = transactionItemRepository;
             _userRepository = userRepository;
             _cartService = cartService;
+            _itemRepository = itemRepository;
         }
 
         public Transaction CreateTransaction(int userId)
@@ -44,7 +47,14 @@ namespace WebShop.Services
             };
 
             _transactionRepository.Add(transaction);
-            
+
+            foreach(var item in cart.Items)
+            {
+                Item tempItem = _itemRepository.GetById(item.ItemId);
+                tempItem.Sold = true;
+                _itemRepository.Update(tempItem);
+            }
+
             _cartService.ClearCart();
             return transaction;
         }

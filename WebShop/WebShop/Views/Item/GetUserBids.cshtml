@@ -125,7 +125,7 @@
                             }
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => bid.Amount)
+                            @string.Format("{0:n0} €", bid.Amount) <!-- Changed to euros -->
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => bid.Time)

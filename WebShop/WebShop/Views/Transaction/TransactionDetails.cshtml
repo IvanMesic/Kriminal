@@ -111,12 +111,12 @@
             <h4>Transaction</h4>
             <hr />
             <dl class="row">
-                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Date)</dt>
-                <dd class="col-sm-10">@Html.DisplayFor(model => model.Date)</dd>
-                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.TotalAmount)</dt>
-                <dd class="col-sm-10">@Html.DisplayFor(model => model.TotalAmount)</dd>
-                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.User)</dt>
-                <dd class="col-sm-10">@Html.DisplayFor(model => model.User.Username)</dd>
+                <dt class="col-sm-2">Date</dt>
+                <dd class="col-sm-10">@Model.Date</dd>
+                <dt class="col-sm-2">Total Amount</dt>
+                <dd class="col-sm-10">@Model.TotalAmount €</dd>
+                <dt class="col-sm-2">User</dt>
+                <dd class="col-sm-10">@Model.User.Username</dd>
             </dl>
         </div>
 
@@ -128,9 +128,8 @@
                         <img src="@transactionItem.Item.ImagePath" alt="@transactionItem.Item.Title">
                     </a>
                     <div class="item-card-body">
-                        <h3 class="item-card-title">@Html.DisplayFor(modelItem => transactionItem.Item.Title)</h3>
-                        <h4 class="item-card-subtitle">@Html.DisplayFor(modelItem => transactionItem.Item.Artist.Name)</h4>
-                        <p class="item-card-text">Price: @string.Format("{0:n0} $", transactionItem.Item.Price)</p>
+                        <h3 class="item-card-title">@transactionItem.Item.Title</h3>
+                        <p class="item-card-text">Price: @string.Format("{0:n0} €", transactionItem.Item.Price)</p>
                     </div>
                 </div>
             }

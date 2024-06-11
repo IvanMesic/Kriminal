@@ -149,7 +149,7 @@
                                     <div class="item-card-body">
                                         <h3 class="item-card-title">@Html.DisplayFor(modelItem => transactionItem.Item.Title)</h3>
                                         <h4 class="item-card-subtitle">@Html.DisplayFor(modelItem => transactionItem.Item.Artist.Name)</h4>
-                                        <p class="item-card-text">Price: @string.Format("{0:n0} $", transactionItem.Item.Price)</p>
+                                        <p class="item-card-text">Price: @string.Format("{0:n0} €", transactionItem.Item.Price)</p>
                                     </div>
                                 </div>
                             }
@@ -158,7 +158,7 @@
                             @Html.DisplayFor(modelItem => item.Date)
                         </td>
                         <td>
-                            @string.Format("{0:n0} $", item.TotalAmount)
+                            @string.Format("{0:n0} €", item.TotalAmount)
                         </td>
                     </tr>
                 }

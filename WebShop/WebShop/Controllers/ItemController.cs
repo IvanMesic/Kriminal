@@ -1,102 +1,48 @@
 ﻿using AutoMapper;
-using DAL.Interfaces;
 using DAL.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
 using WebShop.Model;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using WebShop.Services.Interfaces;
 
 namespace WebShop.Controllers
 {
     public class ItemController : Controller
     {
-        private readonly IItemRepository _itemRepository;
-        
-        private readonly ITagRepository _tagRepository;
-        private readonly IItemTagRepository _itemTagRepository;
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly IArtistRepository _artistRepository;
-        private readonly IBidRepository _bidRepository;
-
+        private readonly IItemService _itemService;
         private readonly IMapper _mapper;
 
-        public ItemController(
-            IItemRepository itemRepository,
-            ITagRepository tagRepository,
-            IItemTagRepository itemTagRepository,
-            IMapper mapper, 
-            ICategoryRepository categoryRepository,
-            IArtistRepository artistRepository,
-            IBidRepository bidRepository)
+        public ItemController(IItemService itemService, IMapper mapper)
         {
-            _itemRepository = itemRepository;
-
-            _tagRepository = tagRepository;
-            _itemTagRepository = itemTagRepository;
-            _categoryRepository = categoryRepository;
-            _artistRepository = artistRepository;
-
+            _itemService = itemService;
             _mapper = mapper;
-            _bidRepository = bidRepository;
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return Json(new { success = false, message = "No file selected." });
-
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/static-files", file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(stream);
+                var relativePath = await _itemService.UploadImageAsync(file);
+                return Json(new { success = true, filePath = relativePath });
             }
-
-            var relativePath = "/static-files/" + file.FileName;
-            return Json(new { success = true, filePath = relativePath });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
+
         [Authorize(Roles = "Admin, User")]
         public ActionResult Index(ItemListViewModel itemListViewModel)
         {
-            int pageSize = 10;
-            int pageNumber = (itemListViewModel.pageNumber ?? 1);
-
-            foreach (int tagId in itemListViewModel.selectedTags)
-            {
-                itemListViewModel.tags.Add(_tagRepository.GetById(tagId));
-            }
-
-            foreach (int categoryId in itemListViewModel.selectedCategories)
-            {
-                itemListViewModel.categories.Add(_categoryRepository.GetById(categoryId));
-            }
-
-            foreach (int artistId in itemListViewModel.selectedArtists)
-            {
-                itemListViewModel.artists.Add(_artistRepository.GetById(artistId));
-            }
-
-            IList<Item> filteredItems = _itemRepository.GetFiltered(
-                tags: itemListViewModel.tags,
-                artists: itemListViewModel.artists,
-                categories: itemListViewModel.categories,
-                priceMin: itemListViewModel.priceMin,
-                priceMax: itemListViewModel.priceMax,
-                searchQuery: itemListViewModel.searchQuery,
-                includeSold: itemListViewModel.includeSold,
-                includeSale: itemListViewModel.includeSale
-            );
-
-            int totalPages = (int)Math.Ceiling((double)filteredItems.Count() / pageSize);
+            var (filteredItems, totalPages) = _itemService.GetFilteredItems(itemListViewModel);
 
             ViewBag.TotalPages = totalPages; // SET THESE
-            itemListViewModel.pageNumber = pageNumber; // SET THESE
+            itemListViewModel.pageNumber = itemListViewModel.pageNumber ?? 1; // SET THESE
 
-            var filteredItemsPaged = filteredItems.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            var filteredItemsPaged = filteredItems.Skip((itemListViewModel.pageNumber.Value - 1) * 10).Take(10);
 
             itemListViewModel.items = filteredItemsPaged.ToArray();
 
@@ -111,16 +57,16 @@ namespace WebShop.Controllers
         [Authorize(Roles = "Admin, User")]
         public ActionResult Details(int id)
         {
-            var item = _itemRepository.GetById(id);
+            var item = _itemService.GetItemById(id);
 
-            if(item != null)
+            if (item != null)
             {
                 return View(item);
             }
 
             return RedirectToAction(nameof(Index));
-
         }
+
         [Authorize(Roles = "Admin, User")]
         public ActionResult Create()
         {
@@ -132,49 +78,14 @@ namespace WebShop.Controllers
         [Authorize(Roles = "Admin, User")]
         public ActionResult Create(CreateItemViewModel itemViewModel)
         {
-            var item = _mapper.Map<Item>(itemViewModel.item);
-            _itemRepository.Add(item);
-
-            foreach (var tagId in itemViewModel.tagIds)
-            {
-                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
-                _itemTagRepository.Add(itemTag);
-            }
-
-            foreach (var newTag in itemViewModel.newTags)
-            {
-                var existingTag = _tagRepository.GetByName(newTag);
-
-                if (existingTag == null)
-                {
-                    var tag = new Tag { Name = newTag };
-                    _tagRepository.Add(tag);
-                    existingTag = tag;
-                }
-
-                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = existingTag.TagId };
-                _itemTagRepository.Add(itemTag);
-            }
-
+            _itemService.CreateItem(itemViewModel);
             return RedirectToAction(nameof(Index));
         }
 
         [Authorize(Roles = "Admin, User")]
         public ActionResult Edit(int id)
         {
-            var item = _itemRepository.GetById(id);
-
-            if (item == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            var itemVM = new CreateItemViewModel { item = item, tagIds = new List<int>() };
-
-            foreach (ItemTag itemTag in item.ItemTags)
-            {
-                itemVM.tagIds.Add(itemTag.TagId);
-            }
+            var itemVM = _itemService.GetEditItemViewModel(id);
 
             if (itemVM != null)
             {
@@ -189,32 +100,14 @@ namespace WebShop.Controllers
         [Authorize(Roles = "Admin, User")]
         public ActionResult Edit(CreateItemViewModel itemViewModel)
         {
-            var item = _mapper.Map<Item>(itemViewModel.item);
-            _itemRepository.Update(item);
-
-            int id = item.ItemId;
-            item = _itemRepository.GetById(id);
-
-            // Delete old tags
-            foreach (ItemTag itemTag in item.ItemTags)
-            {
-                _itemTagRepository.Delete(itemTag);
-            }
-
-            // Create new tags
-            foreach (var tagId in itemViewModel.tagIds)
-            {
-                var itemTag = new ItemTag { ItemId = item.ItemId, TagId = tagId };
-                _itemTagRepository.Add(itemTag);
-            }
-
+            _itemService.EditItem(itemViewModel);
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin, User")]
         public ActionResult Delete(int id)
         {
-            var item = _itemRepository.GetById(id);
-            _itemRepository.Delete(item);
+            _itemService.DeleteItem(id);
             return RedirectToAction(nameof(Index));
         }
 
@@ -222,9 +115,7 @@ namespace WebShop.Controllers
         public ActionResult GetItemsForUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            List<Item> items = _itemRepository.GetAllItemsForUser(int.Parse(userId)).ToList();
-
+            var items = _itemService.GetAllItemsForUser(int.Parse(userId)).ToList();
             return View(items);
         }
 
@@ -232,15 +123,11 @@ namespace WebShop.Controllers
         public ActionResult GetUserBids()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var bids = _bidRepository.GetHighestBidsForUser(int.Parse(userId)) ?? new List<Bid>();
-
+            var bids = _itemService.GetHighestBidsForUser(int.Parse(userId)) ?? new List<Bid>();
             return View(bids);
         }
-
     }
 
-}
     public static class HttpRequestExtensions
     {
         public static bool IsAjaxRequest(this HttpRequest request)
@@ -258,4 +145,4 @@ namespace WebShop.Controllers
             return false;
         }
     }
-
+}

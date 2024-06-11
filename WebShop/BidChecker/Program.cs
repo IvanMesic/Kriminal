@@ -14,8 +14,6 @@ namespace BidChecker
 
             HttpClient client = new HttpClient();
 
-            bool isFirstRun = true;
-
             client.BaseAddress = new Uri("http://localhost:5285/api");
 
                 var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
@@ -26,16 +24,6 @@ namespace BidChecker
 
                     var items = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<Item>>();
 
-                if (isFirstRun)
-                {
-                    items.FirstOrDefault().ExpirationDate = DateTime.Now.AddSeconds(30);
-                    await Console.Out.WriteLineAsync(items.FirstOrDefault().Title);
-                    isFirstRun = false;
-
-                }
-
-
-                    
                 foreach(var item in items)
                     {
 

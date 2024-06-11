@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebShop.Mapping;
 using WebShop.Services;
+using WebShop.Services.Interfaces;
 
 namespace WebShop
 {
@@ -37,8 +38,14 @@ namespace WebShop
             builder.Services.AddScoped<IArtistTagRepository, ArtistTagRepository>();
             builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
             builder.Services.AddScoped<ITransactionItemRepository, TransactionItemRepository>();
+
+
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
+            builder.Services.AddScoped<IArtistService, ArtistService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IItemService, ItemService>();
+
 
             builder.Services.AddHttpContextAccessor();
 

@@ -140,7 +140,7 @@
                 <div class="card-body">
                     <h3 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h3>
                     <h4 class="card-subtitle">@Html.DisplayFor(modelItem => item.Artist.Name)</h4>
-                    <p class="card-text">Price: @string.Format("{0:n0} $", item.Price)</p>
+                    <p class="card-text">Price: @string.Format("{0:n0} €", item.Price)</p>
                     <form asp-action="AddToCart" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="@item.ItemId" />
                         <input type="number" name="quantity" value="1" min="1" class="quantity-input" />
