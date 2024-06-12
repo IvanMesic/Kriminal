@@ -1,6 +1,7 @@
 ﻿using DAL.Model;
 using DAL.ServiceInterfaces;
 using DAL.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using WebShop.Services;
 
 namespace WebShop.Controllers
 {
+    [Authorize(Roles = "Admin, User")]
     public class CartController : Controller
     {
         private readonly ICartService _cartService;

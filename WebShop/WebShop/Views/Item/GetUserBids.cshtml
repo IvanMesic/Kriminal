@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GetUserBids</title>
+    <title>My Bids</title>
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -125,7 +125,7 @@
                             }
                         </td>
                         <td>
-                            @string.Format("{0:n0} €", bid.Amount) <!-- Changed to euros -->
+                            @string.Format("{0:n0} €", bid.Amount) 
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => bid.Time)
